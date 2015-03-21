@@ -6,11 +6,11 @@
 				<externalSettings>
 					<externalSetting>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/RadioHead"/>
-						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/APMLib"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/ardupilot"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/RadioHead/Release"/>
-						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/APMLib/Release"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/ardupilot/Release"/>
 						<entry flags="RESOLVED" kind="libraryFile" name="RadioHead" srcPrefixMapping="" srcRootPath=""/>
-						<entry flags="RESOLVED" kind="libraryFile" name="APMLib" srcPrefixMapping="" srcRootPath=""/>
+						<entry flags="RESOLVED" kind="libraryFile" name="ardupilot" srcPrefixMapping="" srcRootPath=""/>
 					</externalSetting>
 				</externalSettings>
 				<extensions>
@@ -44,74 +44,74 @@
 								<option id="gnu.cpp.compiler.option.debugging.level.1636922835" name="Debug Level" superClass="gnu.cpp.compiler.option.debugging.level" useByScannerDiscovery="false" value="gnu.cpp.compiler.debugging.level.none" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.option.other.other.1969975330" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" useByScannerDiscovery="false" value="-c -fmessage-length=0 -mcpu=cortex-m3 -mthumb -fno-rtti -fno-exceptions -ffunction-sections -fdata-sections -Wno-unused-parameter" valueType="string"/>
 								<option id="gnu.cpp.compiler.option.include.paths.923541458" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/APMLib/AP_Declination}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/APMLib/StorageManager}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/APMLib/AP_OpticalFlow}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/APMLib/PID}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/APMLib/AP_Mission}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/APMLib/AP_Navigation}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/APMLib/AC_WPNav}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/APMLib/AP_Motors}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/APMLib/GCS_MAVLink}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/APMLib/AP_ADC}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/APMLib/APM_PI}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/APMLib/AP_Compass}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/APMLib/AC_PID}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/APMLib/AP_InertialNav}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/APMLib/GCS_Console}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/APMLib/RC_Channel}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/APMLib/SITL}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/APMLib/AP_HAL_VRBRAIN}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/APMLib/AP_Notify}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/APMLib/AP_HAL_PX4}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/APMLib/AP_ServoRelayEvents}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/APMLib/AP_Arming}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/APMLib/AC_AttitudeControl}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/APMLib/AP_Mount}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/APMLib/AP_TECS}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/APMLib/AP_Parachute}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/APMLib/Filter}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/APMLib/AP_HAL_FLYMAPLE}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/APMLib/AP_Airspeed}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/APMLib/AP_HAL_Linux}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/APMLib/AC_Sprayer}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/APMLib/AP_Camera}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/APMLib/AP_RangeFinder}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/APMLib/AP_Rally}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/APMLib/AP_NavEKF}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/APMLib/AP_AHRS}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/APMLib/AP_Frsky_Telem}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/APMLib/AP_HAL_AVR}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/APMLib/AP_Param}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/APMLib/AP_Buffer}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/APMLib/AP_PerfMon}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/APMLib/AC_Fence}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/APMLib/AP_HAL_AVR_SITL}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/APMLib/DataFlash}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/APMLib/AP_Vehicle}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/APMLib/AP_ADC_AnalogSource}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/APMLib/AP_Progmem}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/APMLib/AP_L1_Control}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/APMLib/AP_EPM}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/APMLib/AP_Baro}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/APMLib/APM_OBC}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/APMLib/AP_Common}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/APMLib/AP_BoardConfig}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/APMLib/AP_Terrain}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/APMLib/AP_BattMonitor}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/APMLib/AP_GPS}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/APMLib/AP_SpdHgtControl}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/APMLib/AP_Math}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/APMLib/AP_InertialSensor}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/APMLib/AP_HAL_Empty}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/APMLib/AP_RCMapper}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/APMLib/AP_Scheduler}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/APMLib/AP_Curve}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/APMLib/APM_Control}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/APMLib/AP_Menu}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/APMLib/AP_Limits}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/APMLib/AP_HAL}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/APMLib/AP_Relay}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ardupilot/AP_Declination}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ardupilot/StorageManager}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ardupilot/AP_OpticalFlow}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ardupilot/PID}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ardupilot/AP_Mission}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ardupilot/AP_Navigation}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ardupilot/AC_WPNav}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ardupilot/AP_Motors}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ardupilot/GCS_MAVLink}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ardupilot/AP_ADC}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ardupilot/APM_PI}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ardupilot/AP_Compass}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ardupilot/AC_PID}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ardupilot/AP_InertialNav}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ardupilot/GCS_Console}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ardupilot/RC_Channel}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ardupilot/SITL}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ardupilot/AP_HAL_VRBRAIN}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ardupilot/AP_Notify}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ardupilot/AP_HAL_PX4}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ardupilot/AP_ServoRelayEvents}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ardupilot/AP_Arming}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ardupilot/AC_AttitudeControl}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ardupilot/AP_Mount}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ardupilot/AP_TECS}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ardupilot/AP_Parachute}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ardupilot/Filter}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ardupilot/AP_HAL_FLYMAPLE}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ardupilot/AP_Airspeed}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ardupilot/AP_HAL_Linux}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ardupilot/AC_Sprayer}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ardupilot/AP_Camera}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ardupilot/AP_RangeFinder}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ardupilot/AP_Rally}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ardupilot/AP_NavEKF}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ardupilot/AP_AHRS}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ardupilot/AP_Frsky_Telem}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ardupilot/AP_HAL_AVR}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ardupilot/AP_Param}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ardupilot/AP_Buffer}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ardupilot/AP_PerfMon}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ardupilot/AC_Fence}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ardupilot/AP_HAL_AVR_SITL}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ardupilot/DataFlash}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ardupilot/AP_Vehicle}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ardupilot/AP_ADC_AnalogSource}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ardupilot/AP_Progmem}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ardupilot/AP_L1_Control}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ardupilot/AP_EPM}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ardupilot/AP_Baro}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ardupilot/APM_OBC}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ardupilot/AP_Common}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ardupilot/AP_BoardConfig}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ardupilot/AP_Terrain}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ardupilot/AP_BattMonitor}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ardupilot/AP_GPS}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ardupilot/AP_SpdHgtControl}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ardupilot/AP_Math}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ardupilot/AP_InertialSensor}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ardupilot/AP_HAL_Empty}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ardupilot/AP_RCMapper}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ardupilot/AP_Scheduler}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ardupilot/AP_Curve}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ardupilot/APM_Control}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ardupilot/AP_Menu}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ardupilot/AP_Limits}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ardupilot/AP_HAL}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ardupilot/AP_Relay}&quot;"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.preprocessor.def.1033948092" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="CONFIG_HAL_BOARD=HAL_BOARD_XPCC"/>

@@ -57,6 +57,8 @@ const AP_Param::GroupInfo AP_BattMonitor::var_info[] PROGMEM = {
 
     // 7 & 8 were used for VOLT2_PIN and VOLT2_MULT
     // 9..10 left for future expansion
+	AP_GROUPINFO("_AMP_NLCOEF", 9, AP_BattMonitor, _curr_amp_nonlinear_coef[0], 0.0),
+	AP_GROUPINFO("2_AMP_NLCOEF", 10, AP_BattMonitor, _curr_amp_nonlinear_coef[1], 0.0),
 
 #if AP_BATT_MONITOR_MAX_INSTANCES > 1
     // @Param: 2_MONITOR
@@ -107,6 +109,8 @@ const AP_Param::GroupInfo AP_BattMonitor::var_info[] PROGMEM = {
     // @Increment: 50
     // @User: Standard
     AP_GROUPINFO("2_CAPACITY", 17, AP_BattMonitor, _pack_capacity[1], AP_BATT_CAPACITY_DEFAULT),
+
+
 
 #endif // AP_BATT_MONITOR_MAX_INSTANCES > 1
 
