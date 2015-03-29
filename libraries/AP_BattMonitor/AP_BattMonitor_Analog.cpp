@@ -37,6 +37,9 @@ AP_BattMonitor_Analog::read()
         float gain;
         if(_mon._curr_amp_nonlinear_coef[_state.instance] > 0.0f) {
         	gain = -_mon._curr_amp_nonlinear_coef[_state.instance]/_curr_pin_analog_source->voltage_average() + _mon._curr_amp_per_volt[_state.instance];
+        	if(gain < 0.0f) {
+        		gain = 0.0f;
+        	}
         } else {
         	gain = _mon._curr_amp_per_volt[_state.instance];
         }

@@ -1181,7 +1181,14 @@ void GCS_MAVLINK::send_battery2(const AP_BattMonitor &battery)
 void GCS_MAVLINK::send_battery_status(const AP_BattMonitor &battery){
 	uint16_t voltages[10];
 	memset(voltages, 0, sizeof(uint16_t)*10);
-	voltages[0] = battery.voltage()/1000;
+	voltages[0] = battery.voltage()*1000;
+
+	uint16_t cellv = (battery.voltage()/3)*1000;
+
+	voltages[1] = cellv;
+	voltages[2] = cellv;
+	voltages[3] = cellv;
+
 	mavlink_msg_battery_status_send(chan,
 			0,
 			MAV_BATTERY_FUNCTION_ALL,

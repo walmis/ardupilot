@@ -9,7 +9,7 @@
 #if CONFIG_HAL_BOARD == HAL_BOARD_AVR_SITL || CONFIG_HAL_BOARD == HAL_BOARD_LINUX
 #pragma GCC optimize("O0")
 #else
-#pragma GCC optimize("O3")
+#pragma GCC optimize("O2")
 #endif
 
 #include "AP_NavEKF.h"
