@@ -131,6 +131,8 @@ public:
         k_param_override_channel,
         k_param_stall_prevention,
         k_param_optflow,
+        k_param_cli_enabled,
+        k_param_trim_rc_at_start,
 
         // 100: Arming parameters
         k_param_arming = 100,
@@ -271,6 +273,7 @@ public:
         k_param_flight_mode4,
         k_param_flight_mode5,
         k_param_flight_mode6,
+        k_param_initial_mode,
 
         //
         // 220: Waypoint data
@@ -320,12 +323,17 @@ public:
     AP_Int16 sysid_this_mav;
     AP_Int16 sysid_my_gcs;
     AP_Int8 telem_delay;
+#if CLI_ENABLED == ENABLED
+    AP_Int8 cli_enabled;
+#endif
 
 #if HIL_MODE != HIL_MODE_DISABLED
     AP_Float hil_err_limit;
 #endif
 
     AP_Int8  rtl_autoland;
+
+    AP_Int8  trim_rc_at_start;
 
     // Feed-forward gains
     //
@@ -403,6 +411,7 @@ public:
     AP_Int8 flight_mode4;
     AP_Int8 flight_mode5;
     AP_Int8 flight_mode6;
+    AP_Int8 initial_mode;
 
     // Navigational maneuvering limits
     //

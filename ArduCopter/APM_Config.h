@@ -41,6 +41,7 @@
 //#define OPTFLOW               ENABLED             // enable optical flow sensor at a cost of 5K of flash space
 //#define FRSKY_TELEM_ENABLED   ENABLED             // enable FRSky telemetry
 
+#define FS_RADIO_TIMEOUT_MS            1000
 
 // features below are disabled by default on all boards
 #define SPRAYER               DISABLED             // enable the crop sprayer feature (two ESC controlled pumps the speed of which depends upon the vehicle's horizontal velocity)

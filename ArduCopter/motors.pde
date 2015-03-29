@@ -173,7 +173,7 @@ static bool init_arm_motors(bool arming_from_gcs)
     hal.util->set_soft_armed(true);
 
     // set hover throttle
-    motors.set_mid_throttle(g.throttle_mid);
+    motors.set_hover_throttle(g.throttle_mid);
 
 #if SPRAYER == ENABLED
     // turn off sprayer's test if on
@@ -695,8 +695,6 @@ static void init_disarm_motors()
     if (compass.learn_offsets_enabled()) {
         compass.save_offsets();
     }
-
-    g.throttle_cruise.save();
 
 #if AUTOTUNE_ENABLED == ENABLED
     // save auto tuned parameters

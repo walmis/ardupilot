@@ -9,6 +9,9 @@
 #include <AP_Progmem.h>
 #include "AP_InertialSensor.h"
 
+#include <Filter.h>
+#include <LowPassFilter2p.h>
+
 // enable debug to see a register dump on startup
 #define MPU6050_DEBUG 0
 
@@ -19,8 +22,8 @@ public:
 
     static AP_InertialSensor_Backend *detect(AP_InertialSensor &imu);
 
-    bool gyro_sample_available(void) { return _sum_count > 0; }
-    bool accel_sample_available(void) { return _sum_count > 0; }
+    bool gyro_sample_available(void) { return _num_samples > 0; }
+    bool accel_sample_available(void) { return _num_samples > 0; }
 
     /* Concrete implementation of AP_InertialSensor functions: */
     bool                update();
@@ -46,7 +49,6 @@ private:
     int16_t reset_fifo(uint8_t sensors);
     bool configure_fifo(uint8_t sensors);
 
-    bool                 _sample_available();
     void                 _poll_data(void);
     uint8_t              _register_read( uint8_t reg );
     void                 _register_write( uint8_t reg, uint8_t val );
@@ -56,9 +58,9 @@ private:
     AP_HAL::I2CDriver *_i2c;
     AP_HAL::Semaphore *_i2c_sem;
 
-    uint16_t					_num_samples;
+    volatile uint16_t					_num_samples;
 
-    uint16_t _fifo_count;
+    volatile uint16_t _fifo_count;
     uint8_t _data[12];
 
     void _onFifoData(); //i2c callback
@@ -70,26 +72,31 @@ private:
      */
     const float          _gyro_scale = (0.0174532f / 16.4f);
 
-    uint32_t _last_sample_timestamp;
-
     // ensure we can't initialise twice
     bool                        _initialised;
     int16_t              _mpu6000_product_id;
 
     // support for updating filter at runtime
-    uint8_t _last_filter_hz;
+    int8_t _last_accel_filter_hz;
+    int8_t _last_gyro_filter_hz;
 
     volatile bool _sem_missed;
 
-    void _set_filter_register(uint8_t filter_hz, uint8_t default_filter);
+    void _set_filter_register(uint8_t filter_hz);
 
     uint16_t _error_count;
 
+    LowPassFilter2pVector3f _accel_filter;
+    LowPassFilter2pVector3f _gyro_filter;
+
+    Vector3f _accel_filtered;
+    Vector3f _gyro_filtered;
+
     // accumulation in timer - must be read with timer disabled
     // the sum of the values since last read
-    Vector3l _accel_sum;
-    Vector3l _gyro_sum;
-    volatile int16_t _sum_count;
+    //Vector3l _accel_sum;
+    //Vector3l _gyro_sum;
+    //volatile int16_t _sum_count;
     volatile uint8_t _fifo_reset_flag;
 
     //i2c address

@@ -118,6 +118,7 @@
 #include <AP_Mission.h>         // Mission command library
 #include <AP_Rally.h>           // Rally point library
 #include <AC_PID.h>             // PID library
+#include <AC_PI_2D.h>           // PID library (2-axis)
 #include <AC_HELI_PID.h>        // Heli specific Rate PID library
 #include <AC_P.h>               // P library
 #include <AC_AttitudeControl.h> // Attitude control library
@@ -453,15 +454,15 @@ static struct {
 #endif
 
 #if FRAME_CONFIG == HELI_FRAME  // helicopter constructor requires more arguments
-static MOTOR_CLASS motors(g.rc_1, g.rc_2, g.rc_3, g.rc_4, g.rc_7, g.rc_8, g.heli_servo_1, g.heli_servo_2, g.heli_servo_3, g.heli_servo_4);
+static MOTOR_CLASS motors(g.rc_1, g.rc_2, g.rc_3, g.rc_4, g.rc_7, g.rc_8, g.heli_servo_1, g.heli_servo_2, g.heli_servo_3, g.heli_servo_4, MAIN_LOOP_RATE);
 #elif FRAME_CONFIG == TRI_FRAME  // tri constructor requires additional rc_7 argument to allow tail servo reversing
-static MOTOR_CLASS motors(g.rc_1, g.rc_2, g.rc_3, g.rc_4, g.rc_7);
+static MOTOR_CLASS motors(g.rc_1, g.rc_2, g.rc_3, g.rc_4, g.rc_7, MAIN_LOOP_RATE);
 #elif FRAME_CONFIG == SINGLE_FRAME  // single constructor requires extra servos for flaps
-static MOTOR_CLASS motors(g.rc_1, g.rc_2, g.rc_3, g.rc_4, g.single_servo_1, g.single_servo_2, g.single_servo_3, g.single_servo_4);
+static MOTOR_CLASS motors(g.rc_1, g.rc_2, g.rc_3, g.rc_4, g.single_servo_1, g.single_servo_2, g.single_servo_3, g.single_servo_4, MAIN_LOOP_RATE);
 #elif FRAME_CONFIG == COAX_FRAME  // single constructor requires extra servos for flaps
-static MOTOR_CLASS motors(g.rc_1, g.rc_2, g.rc_3, g.rc_4, g.single_servo_1, g.single_servo_2);
+static MOTOR_CLASS motors(g.rc_1, g.rc_2, g.rc_3, g.rc_4, g.single_servo_1, g.single_servo_2, MAIN_LOOP_RATE);
 #else
-static MOTOR_CLASS motors(g.rc_1, g.rc_2, g.rc_3, g.rc_4);
+static MOTOR_CLASS motors(g.rc_1, g.rc_2, g.rc_3, g.rc_4, MAIN_LOOP_RATE);
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -526,7 +527,7 @@ static int32_t initial_armed_bearing;
 ////////////////////////////////////////////////////////////////////////////////
 // Throttle variables
 ////////////////////////////////////////////////////////////////////////////////
-static float throttle_avg;                  // g.throttle_cruise as a float
+static float throttle_average;              // estimated throttle required to hover
 static int16_t desired_climb_rate;          // pilot desired climb rate - for logging purposes only
 
 
@@ -630,8 +631,8 @@ AC_AttitudeControl attitude_control(ahrs, aparm, motors, g.p_stabilize_roll, g.p
                         g.pid_rate_roll, g.pid_rate_pitch, g.pid_rate_yaw);
 #endif
 AC_PosControl pos_control(ahrs, inertial_nav, motors, attitude_control,
-                        g.p_alt_hold, g.p_throttle_rate, g.pid_throttle_accel,
-                        g.p_loiter_pos, g.pid_loiter_rate_lat, g.pid_loiter_rate_lon);
+                        g.p_alt_hold, g.p_vel_z, g.pid_accel_z,
+                        g.p_pos_xy, g.pi_vel_xy);
 static AC_WPNav wp_nav(inertial_nav, ahrs, pos_control, attitude_control);
 static AC_Circle circle_nav(inertial_nav, ahrs, pos_control);
 
@@ -766,7 +767,7 @@ static const AP_Scheduler::Task scheduler_tasks[] PROGMEM = {
     { auto_trim,             HZ(10),     14 },
     { update_altitude,       HZ(10),    100 },
     { run_nav_updates,       HZ(50),     80 },
-    { update_thr_cruise,     HZ(10),     10 },
+    { update_thr_average,    HZ(10),     10 },
     { three_hz_loop,         HZ(3),      9 },
     { compass_accumulate,    HZ(50),     42 },
     { barometer_accumulate,  HZ(50),     25 },
@@ -841,7 +842,7 @@ static const AP_Scheduler::Task scheduler_tasks[] PROGMEM = {
     { auto_trim,            10,     140 },
     { update_altitude,      10,    1000 },
     { run_nav_updates,       4,     800 },
-    { update_thr_cruise,     1,      50 },
+    { update_thr_average,    1,      50 },
     { three_hz_loop,        33,      90 },
     { compass_accumulate,    2,     420 },
     { barometer_accumulate,  2,     250 },
@@ -1021,6 +1022,9 @@ static void throttle_loop()
     // check if we've landed
     update_land_detector();
 
+    // update throttle_low_comp value (controls priority of throttle vs attitude control)
+    update_throttle_low_comp();
+
     // check auto_armed status
     update_auto_armed();
 
@@ -1071,6 +1075,12 @@ static void ten_hz_logging_loop()
 {
     if (should_log(MASK_LOG_ATTITUDE_MED)) {
         Log_Write_Attitude();
+    }
+    if (should_log(MASK_LOG_RATE)) {
+        Log_Write_Rate();
+    }
+    if (should_log(MASK_LOG_MOT)) {
+        Log_Write_Mot();
     }
     if (should_log(MASK_LOG_RCIN)) {
         DataFlash.Log_Write_RCIN();
