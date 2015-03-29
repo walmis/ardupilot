@@ -127,6 +127,8 @@ static void Log_Write_Control_Tuning();
 static void Log_Write_Performance();
 static void Log_Write_Error(uint8_t sub_system, uint8_t error_code);
 static void Log_Write_Baro(void);
+static void Log_Write_Rate();
+static void Log_Write_Mot();
 static void load_parameters(void);
 void userhook_init();
 void userhook_FastLoop();
@@ -414,5 +416,34 @@ static void update_home_from_GPS();
 static void set_system_time_from_GPS();
 bool home_is_set();
 static uint32_t perf_info_get_min_time();
+static void update_throttle_low_comp();
+static void update_thr_average();
+void autotune_updating_p_down(float &tune_p, float tune_p_min,
+		float tune_p_step_ratio, float target, float measurement_max);
+void autotune_updating_p_up(float &tune_p, float tune_p_max,
+		float tune_p_step_ratio, float target, float measurement_max);
+void autotune_twitching_test_d(float measurement, float target,
+		float &measurement_min, float &measurement_max);
+void autotune_twitching_measure_acceleration(float &rate_of_change,
+		float rate_measurement, float &rate_measurement_max);
+void autotune_twitching_test_p(float measurement, float target,
+		float &measurement_min, float &measurement_max);
+void autotune_updating_d_up(float &tune_d, float tune_d_min, float tune_d_max,
+		float tune_d_step_ratio, float &tune_p, float tune_p_min,
+		float tune_p_max, float tune_p_step_ratio, float target,
+		float measurement_min, float measurement_max);
+void autotune_updating_d_down(float &tune_d, float tune_d_min,
+		float tune_d_step_ratio, float &tune_p, float tune_p_min,
+		float tune_p_max, float tune_p_step_ratio, float target,
+		float measurement_min, float measurement_max);
+void autotune_updating_p_up_d_down(float &tune_d, float tune_d_min,
+		float tune_d_step_ratio, float &tune_p, float tune_p_min,
+		float tune_p_max, float tune_p_step_ratio, float target,
+		float measurement_min, float measurement_max);
+inline bool autotune_pitch_enabled();
+inline bool autotune_yaw_enabled();
+inline bool autotune_roll_enabled();
+static void notify_flight_mode(uint8_t mode);
+
 
 #endif /* ARDUCOPTER_HPP_ */
