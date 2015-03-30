@@ -6,6 +6,8 @@
 
 #include "AP_HAL_Namespace.h"
 
+class I2CHandle;
+
 class AP_HAL::I2CDriver {
 public:
     virtual void begin() = 0;
@@ -32,9 +34,11 @@ public:
     virtual uint8_t readRegisters(uint8_t addr, uint8_t reg,
                                   uint8_t len, uint8_t* data) = 0;
 #if CONFIG_HAL_BOARD == HAL_BOARD_XPCC
-    virtual bool readNonblocking(uint8_t addr, uint8_t reg,
+    virtual I2CHandle* readNonblocking(uint8_t addr, uint8_t reg,
                                   uint8_t len, uint8_t* data,
 								  AP_HAL::MemberProc callback) = 0;
+
+
 #endif
 #if CONFIG_HAL_BOARD == HAL_BOARD_LINUX
     /* readRegistersMultiple: read contigious device registers. 

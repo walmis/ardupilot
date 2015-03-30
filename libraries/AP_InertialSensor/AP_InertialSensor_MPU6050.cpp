@@ -174,7 +174,9 @@ extern const AP_HAL::HAL& hal;
 #define BIT_FIFO_RST        (0x04)
 #define BIT_FIFO_EN         (0x40)
 
-#define SAMPLE_RATE 500
+#define SAMPLE_RATE 1000
+
+#define int16_val(v, idx) ((int16_t)(((uint16_t)v[2*idx] << 8) | v[2*idx+1]))
 
 /*
  *  RM-MPU-6000A-00.pdf, page 31, section 4.23 lists LSB sensitivity of
@@ -242,23 +244,27 @@ uint16_t AP_InertialSensor_MPU6050::_init_sensor( )
 
 bool AP_InertialSensor_MPU6050::update( void )
 {
-	if(_num_samples == 0)
-		return false;
+	//_poll_data();
 
+	if(_num_samples == 0) {
+		return false;
+	}
     Vector3f accel, gyro;
 
     // disable timer procs for mininum time
-    //hal.scheduler->suspend_timer_procs();
+    hal.scheduler->suspend_timer_procs();
+    accel = _accel_filtered;
+    gyro = _gyro_filtered;
+    _num_samples = 0;
+    hal.scheduler->resume_timer_procs();
 
     uint8_t num_samples = 1;
-    _num_samples = 0;
-    //hal.scheduler->resume_timer_procs();
 
     gyro *= _gyro_scale / num_samples;
-    _publish_gyro(_gyro_instance, _gyro_filtered);
+    _publish_gyro(_gyro_instance, gyro);
 
     accel *= MPU6000_ACCEL_SCALE_1G / num_samples;
-    _publish_accel(_accel_instance, _accel_filtered);
+    _publish_accel(_accel_instance, accel);
 
     if (_last_accel_filter_hz != _accel_filter_cutoff()) {
         _accel_filter.set_cutoff_frequency(SAMPLE_RATE, _accel_filter_cutoff());
@@ -279,75 +285,20 @@ bool AP_InertialSensor_MPU6050::update( void )
 static const uint8_t packet_size = 12;
 
 void AP_InertialSensor_MPU6050::_onFifoData() {
-	_fifo_count = (_data[0] << 8) | _data[1];
-	//dbgclr();
 
-	//fifo overflow, possibly
-	if(_fifo_count == 1024) {
-		_i2c_sem->give();
-		return;
-	}
-
-	if(_fifo_count >= packet_size) {
-		//dbgset();
-		if(!_i2c->readNonblocking(_addr, MPUREG_FIFO_R_W, packet_size, _data,
-				AP_HAL_MEMBERPROC(&AP_InertialSensor_MPU6050::_onSampleData))) {
-			_i2c_sem->give();
-		}
-	} else {
-		//no packets available, give back i2c bus
-		//dbgclr(1);
-		 _i2c_sem->give();
-	}
-
-	//hal.console->println(_fifo_count);
 }
 
 void AP_InertialSensor_MPU6050::_onSampleData() {
-	//fifo getting high... check fifo on next timer interrupt
-	if(_fifo_count > 256) {
-		//hal.uartE->println("x");
-		_i2c_sem->give();
-		return;
-	}
 
-	if(_fifo_count % packet_size != 0) {
-		//hal.uartE->printf("%d\n", _fifo_count);
-		_fifo_reset_flag++;
-	} else {
-		_fifo_reset_flag = 0;
-	}
+    _accel_filtered = _accel_filter.apply(Vector3f(int16_val(_data, 1),
+                                                   int16_val(_data, 0),
+                                                   -int16_val(_data, 2)));
 
-	//dbgclr();
-	Vector3f v;
-	v.y = (int16_t) (_data[0] << 8) | _data[1];
-	v.x = (int16_t) (_data[2] << 8) | _data[3];
-	v.z = -(int16_t) (_data[4] << 8) | _data[5];
-
-    _accel_filtered = _accel_filter.apply(v);
-
-	v.y  = (int16_t) (_data[6] << 8) | _data[7];
-	v.x  = (int16_t) (_data[8] << 8) | _data[9];
-	v.z  = -(int16_t) (_data[10] << 8) | _data[11];
-
-    _gyro_filtered = _gyro_filter.apply(v);
+    _gyro_filtered = _gyro_filter.apply(Vector3f(int16_val(_data, 5),
+                                                 int16_val(_data, 4),
+                                                 -int16_val(_data, 6)));
 
     _num_samples++;
-
-	_fifo_count -= packet_size;
-
-	if(_fifo_count >= packet_size) {
-		//read another packet
-		//dbgset();
-		if(!_i2c->readNonblocking(_addr, MPUREG_FIFO_R_W, packet_size, _data,
-				AP_HAL_MEMBERPROC(&AP_InertialSensor_MPU6050::_onSampleData))) {
-			_i2c_sem->give();
-		}
-	} else {
-		 //give back the i2c bus
-		//dbgclr(1);
-		_i2c_sem->give();
-	}
 }
 
 /**
@@ -357,131 +308,16 @@ void AP_InertialSensor_MPU6050::_poll_data(void)
 {
 	//dbgset(1);
 #ifdef MPU6000_DRDY_PIN
-	if(!hal.gpio->read(MPU6000_DRDY_PIN)) {
+	if(!_sem_missed && hal.gpio->read(MPU6000_DRDY_PIN) == 0) {
 		return;
 	}
 #endif
 
-	if (!_i2c_sem->take_nonblocking()) {
-		_sem_missed = true;
-		return;
+	if(!_i2c->readNonblocking(_addr, MPUREG_ACCEL_XOUT_H, 14, _data,
+			AP_HAL_MEMBERPROC(&AP_InertialSensor_MPU6050::_onSampleData))) {
 	}
 
-	if(_fifo_reset_flag > 1) {
-		reset_fifo(INV_XYZ_ACCEL| INV_XYZ_GYRO);
-		_fifo_reset_flag = 0;
-		_i2c_sem->give();
-		return;
-	}
-
-	//fifo is suspiciously high, check for overflow
-	if(_fifo_count > 512) {
-		hal.i2c->readRegister(_addr, MPUREG_INT_STATUS, _data);
-		if (_data[0] & BIT_FIFO_OVERFLOW) {
-			reset_fifo(INV_XYZ_ACCEL| INV_XYZ_GYRO);
-			_i2c_sem->give();
-			return;
-		}
-	}
-
-	if(!hal.i2c->readNonblocking(_addr, MPUREG_FIFO_COUNTH, 2, _data,
-			AP_HAL_MEMBERPROC(&AP_InertialSensor_MPU6050::_onFifoData))) {
-		_i2c_sem->give();
-		return;
-	}
-
-
-#if 0
-	static uint8_t c = 0;
-	if(hal.scheduler->in_timerprocess()) {
-		c++;
-		if(c < 2) {
-			return;
-		}
-		c = 0;
-
-		if (!_i2c_sem->take_nonblocking()) {
-			_sem_missed = true;
-			return;
-		}
-
-	} else {
-		c = 0;
-		if(!_i2c_sem->take(100))
-			return;
-	}
-
-	// Read accelerometer FIFO to find out how many samples are available
-	/* Assumes maximum packet size is gyro (6) + accel (6). */
-	uint8_t data[12];
-	uint8_t packet_size = 12;
-	uint16_t fifo_count, index = 0;
-
-	// fifo_count_h register contains the number of samples in the FIFO
-	hal.i2c->readRegisters(_addr, MPUREG_FIFO_COUNTH, 2, data);
-	fifo_count = (data[0] << 8) | data[1];
-
-	if (fifo_count < packet_size){
-		if(fifo_count) _sem_missed = true; //we started receiving samples, so notify the main thread to poll for data
-		// give back i2c semaphore
-		_i2c_sem->give();
-		return;
-	}
-
-	//FIFO protection
-	static bool prevInvalid = false;
-	if(fifo_count % packet_size != 0) {
-
-		if(prevInvalid) {
-			reset_fifo(INV_XYZ_ACCEL| INV_XYZ_GYRO);
-			prevInvalid = false;
-			_i2c_sem->give();
-			return;
-		}
-		prevInvalid = true;
-	} else {
-		prevInvalid = false;
-	}
-
-	if (fifo_count > (1024 >> 1)) {
-		/* FIFO is 50% full, better check overflow bit. */
-		hal.i2c->readRegister(_addr, MPUREG_INT_STATUS, data);
-		if (data[0] & BIT_FIFO_OVERFLOW) {
-			reset_fifo(INV_XYZ_ACCEL| INV_XYZ_GYRO);
-
-			_i2c_sem->give();
-			return;
-		}
-	}
-
-	// read the samples
-	uint8_t nreads = (fifo_count / packet_size);
-	for (uint16_t i=0; i < nreads; i++) {
-		// read the data
-		_i2c->readRegisters(_addr, MPUREG_FIFO_R_W, packet_size, data);
-		fifo_count -= packet_size;
-
-		_accel_sum.y += (int16_t) (data[index+0] << 8) | data[index+1];
-		_accel_sum.x += (int16_t) (data[index+2] << 8) | data[index+3];
-		_accel_sum.z -= (int16_t) (data[index+4] << 8) | data[index+5];
-
-		_gyro_sum.y  += (int16_t) (data[6] << 8) | data[7];
-		_gyro_sum.x  += (int16_t) (data[8] << 8) | data[9];
-		_gyro_sum.z  -= (int16_t) (data[10] << 8) | data[11];
-
-		_sum_count++;
-		if (_sum_count == 0) {
-			// rollover - v unlikely
-			_accel_sum.zero();
-			_gyro_sum.zero();
-		}
-	}
-
-	_i2c_sem->give();
-#endif
 }
-
-
 
 uint8_t AP_InertialSensor_MPU6050::_register_read( uint8_t reg )
 {
@@ -604,7 +440,7 @@ bool AP_InertialSensor_MPU6050::_hardware_init()
 //    case AP_InertialSensor::RATE_500HZ:
 //    default:
 //    	default_filter = BITS_DLPF_CFG_42HZ;
-    _register_write(MPUREG_SMPLRT_DIV, MPUREG_SMPLRT_500HZ);
+    _register_write(MPUREG_SMPLRT_DIV, MPUREG_SMPLRT_1000HZ);
 //        break;
 //    }
 

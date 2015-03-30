@@ -49,7 +49,7 @@ private:
     volatile uint16_t					_num_samples;
 
     volatile uint16_t _fifo_count;
-    uint8_t _data[12];
+    uint8_t _data[14];
 
     void _onFifoData(); //i2c callback
     void _onSampleData(); //i2c callback
