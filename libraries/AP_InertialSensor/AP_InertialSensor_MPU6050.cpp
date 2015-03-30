@@ -248,25 +248,17 @@ bool AP_InertialSensor_MPU6050::update( void )
     Vector3f accel, gyro;
 
     // disable timer procs for mininum time
-    hal.scheduler->suspend_timer_procs();
-
-//    gyro(_gyro_sum.x, _gyro_sum.y, _gyro_sum.z);
-//    accel(_accel_sum.x, _accel_sum.y, _accel_sum.z);
-//    _num_samples = _sum_count;
-//    _accel_sum.zero();
-//    _gyro_sum.zero();
-//
-//    _sum_count = 0;
+    //hal.scheduler->suspend_timer_procs();
 
     uint8_t num_samples = 1;
-
-    hal.scheduler->resume_timer_procs();
+    _num_samples = 0;
+    //hal.scheduler->resume_timer_procs();
 
     gyro *= _gyro_scale / num_samples;
-    _publish_gyro(_gyro_instance, gyro);
+    _publish_gyro(_gyro_instance, _gyro_filtered);
 
     accel *= MPU6000_ACCEL_SCALE_1G / num_samples;
-    _publish_accel(_accel_instance, accel);
+    _publish_accel(_accel_instance, _accel_filtered);
 
     if (_last_accel_filter_hz != _accel_filter_cutoff()) {
         _accel_filter.set_cutoff_frequency(SAMPLE_RATE, _accel_filter_cutoff());
@@ -277,7 +269,7 @@ bool AP_InertialSensor_MPU6050::update( void )
         _gyro_filter.set_cutoff_frequency(SAMPLE_RATE, _gyro_filter_cutoff());
         _last_gyro_filter_hz = _gyro_filter_cutoff();
     }
-    _num_samples = 0;
+
 
     return true;
 }

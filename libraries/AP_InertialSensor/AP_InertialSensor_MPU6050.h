@@ -27,18 +27,6 @@ public:
 
     /* Concrete implementation of AP_InertialSensor functions: */
     bool                update();
-    //float               get_gyro_drift_rate();
-
-    // wait for a sample to be available, with timeout in milliseconds
-    //bool                wait_for_sample(uint16_t timeout_ms);
-
-    // get_delta_time returns the time period in seconds overwhich the sensor data was collected
-    //float            	get_delta_time() const;
-
-    //uint16_t error_count(void) const { return _error_count; }
-    //bool healthy(void) const { return _error_count <= 4; }
-    //bool get_gyro_health(uint8_t instance) const { return healthy(); }
-    //bool get_accel_health(uint8_t instance) const { return healthy(); }
 
 protected:
     uint16_t                    _init_sensor();
@@ -92,11 +80,6 @@ private:
     Vector3f _accel_filtered;
     Vector3f _gyro_filtered;
 
-    // accumulation in timer - must be read with timer disabled
-    // the sum of the values since last read
-    //Vector3l _accel_sum;
-    //Vector3l _gyro_sum;
-    //volatile int16_t _sum_count;
     volatile uint8_t _fifo_reset_flag;
 
     //i2c address
