@@ -45,5 +45,6 @@
 #define WAAS_OFF        	"$PMTK301,0*2C\r\n"
 
 #define MTK_AIC_OFF "$PMTK286,0*22\r\n"
+#define MTK_AIC_ON  "$PMTK286,1*23\r\n"
 
 #endif // __AP_GPS_MTK_COMMON_H__
