@@ -951,7 +951,7 @@ void loop()
 
     // check loop time
     perf_info_check_loop_time(timer - fast_loopTimer);
-
+    //dbgset(1);
     // used by PI Loops
     G_Dt                    = (float)(timer - fast_loopTimer) / 1000000.f;
     fast_loopTimer          = timer;
@@ -973,6 +973,7 @@ void loop()
     // call until scheduler.tick() is called again
     uint32_t time_available = (timer + MAIN_LOOP_MICROS) - micros();
     scheduler.run(time_available);
+    //dbgclr(1);
 }
 
 
@@ -992,8 +993,9 @@ static void fast_loop()
 #endif //HELI_FRAME
 
     // send outputs to the motors library
+    dbgset(1);
     motors_output();
-
+    dbgclr(1);
     // Inertial Nav
     // --------------------
     read_inertia();
@@ -1320,9 +1322,7 @@ static void read_AHRS(void)
     // update hil before ahrs update
     gcs_check_input();
 #endif
-    dbgset(1);
     ahrs.update();
-    dbgclr(1);
 }
 
 // read baro and sonar altitude at 10hz
