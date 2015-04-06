@@ -64,7 +64,7 @@ protected:
     void _rotate_and_correct_accel(uint8_t instance, Vector3f &accel);
     void _rotate_and_correct_gyro(uint8_t instance, Vector3f &gyro);
 
-    void _publish_delta_velocity(uint8_t instance, const Vector3f &delta_velocity);
+    void _publish_delta_velocity(uint8_t instance, const Vector3f &delta_velocity, float dt);
     void _publish_delta_angle(uint8_t instance, const Vector3f &delta_angle);
 
     // rotate gyro vector, offset and publish
@@ -72,6 +72,9 @@ protected:
 
     // rotate accel vector, scale, offset and publish
     void _publish_accel(uint8_t instance, const Vector3f &accel, bool rotate_and_correct = true);
+
+    // publish a temperature value
+    void _publish_temperature(uint8_t instance, float temperature);
 
     // set accelerometer error_count
     void _set_accel_error_count(uint8_t instance, uint32_t error_count);

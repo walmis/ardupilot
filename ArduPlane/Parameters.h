@@ -133,6 +133,8 @@ public:
         k_param_optflow,
         k_param_cli_enabled,
         k_param_trim_rc_at_start,
+        k_param_hil_mode,
+        k_param_land_disarm_delay,
 
         // 100: Arming parameters
         k_param_arming = 100,
@@ -327,9 +329,7 @@ public:
     AP_Int8 cli_enabled;
 #endif
 
-#if HIL_MODE != HIL_MODE_DISABLED
     AP_Float hil_err_limit;
-#endif
 
     AP_Int8  rtl_autoland;
 
@@ -438,13 +438,12 @@ public:
     AP_Int32 airspeed_cruise_cm;
     AP_Int32 RTL_altitude_cm;
     AP_Float land_flare_alt;
-    AP_Float land_flare_sec;
+    AP_Int8 land_disarm_delay;
     AP_Int32 min_gndspeed_cm;
     AP_Int16 pitch_trim_cd;
     AP_Int16 FBWB_min_altitude_cm;
-#if HIL_MODE != HIL_MODE_DISABLED
     AP_Int8  hil_servos;
-#endif
+    AP_Int8  hil_mode;
 
     AP_Int8 compass_enabled;
     AP_Int8 flap_1_percent;

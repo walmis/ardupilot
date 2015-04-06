@@ -164,7 +164,6 @@ extern const AP_HAL::HAL& hal;
 bool AP_Compass_FXOS8700::read_register(uint8_t address, uint8_t *value)
 {
     if (hal.i2c->readRegister(COMPASS_ADDRESS, address, value) != 0) {
-        _healthy[0] = false;
         return false;
     }
     return true;
@@ -174,7 +173,6 @@ bool AP_Compass_FXOS8700::read_register(uint8_t address, uint8_t *value)
 bool AP_Compass_FXOS8700::write_register(uint8_t address, uint8_t value)
 {
     if (hal.i2c->writeRegister(COMPASS_ADDRESS, address, value) != 0) {
-        _healthy[0] = false;
         return false;
     }
     return true;
@@ -187,7 +185,6 @@ bool AP_Compass_FXOS8700::read_raw()
 	uint8_t buffer[6];
 
 	if(hal.i2c->readRegisters(COMPASS_ADDRESS, FXOS8700_M_OUT_X_MSB, 6, buffer) != 0) {
-		_healthy[0] = false;
 		return false;
 	}
 
@@ -196,10 +193,7 @@ bool AP_Compass_FXOS8700::read_raw()
     rz = (((int16_t)buffer[4]) << 8) | buffer[5];
 
     if(rx == 0 && ry == 0 && rz == 0) {
-    	_healthy[0] = false;
     	return false;
-    } else {
-    	_healthy[0] = true;
     }
 
     _mag_x = -rx;
@@ -220,7 +214,7 @@ void AP_Compass_FXOS8700::accumulate(void)
         return;
     }
    uint32_t tnow = hal.scheduler->micros();
-   if (_healthy[0] && _accum_count != 0 && (tnow - _last_accum_time) < 10000) {
+   if (_accum_count != 0 && (tnow - _last_accum_time) < 10000) {
 	  // the compass gets new data at 75Hz
 	  return;
    }
@@ -260,13 +254,15 @@ AP_Compass_FXOS8700::init()
         hal.scheduler->panic(PSTR("Failed to get FXOS8700 semaphore"));
     }
 
+    bool _healthy;
+
     _initialised = false;
 
     //sw reset
     write_register(FXOS8700_CTRL_REG2, 0b01000000);
     hal.scheduler->delay(5);
 
-    _healthy[0] = true;
+    _healthy = true;
     //set active and 50hz output rate
     write_register(FXOS8700_CTRL_REG1, 0b00100001);
 	//OSR = 7
@@ -283,70 +279,58 @@ AP_Compass_FXOS8700::init()
 
     _i2c_sem->give();
 
-    if(_healthy[0]) {
+    if(_healthy) {
     	_initialised = true;
+
+		// register the compass instance in the frontend
+		_compass_instance = register_compass();
+
     }
 
-    return _healthy[0];
+    return _healthy;
 }
 
 // Read Sensor data
-bool AP_Compass_FXOS8700::read()
+void AP_Compass_FXOS8700::read()
 {
     if (!_initialised) {
         // someone has tried to enable a compass for the first time
         // mid-flight .... we can't do that yet (especially as we won't
         // have the right orientation!)
-        return false;
-    }
-    if (!_healthy[0]) {
-        if (hal.scheduler->millis() < _retry_time) {
-            return false;
-        }
+        return;
     }
 
 	if (_accum_count == 0) {
 	   accumulate();
-	   if (!_healthy[0] || _accum_count == 0) {
+	   if (_accum_count == 0) {
 		  // try again in 1 second, and set I2c clock speed slower
 		  _retry_time = hal.scheduler->millis() + 1000;
 		  hal.i2c->setHighSpeed(false);
-		  return false;
+		  return;
 	   }
 	}
 
-	_field[0].x = _mag_x_accum / _accum_count;
-	_field[0].y = _mag_y_accum / _accum_count;
-	_field[0].z = _mag_z_accum / _accum_count;
+	Vector3f _field;
+	_field.x = _mag_x_accum / _accum_count;
+	_field.y = _mag_y_accum / _accum_count;
+	_field.z = _mag_z_accum / _accum_count;
 	_accum_count = 0;
 	_mag_x_accum = _mag_y_accum = _mag_z_accum = 0;
 
-    last_update = hal.scheduler->micros(); // record time of update
+	_field.rotate(ROTATION_ROLL_180_YAW_90);
 
-//    // rotate to the desired orientation
-//    if (product_id == AP_COMPASS_TYPE_HMC5883L) {
-//        _field[0].rotate(ROTATION_YAW_90);
-//    }
+	publish_field(_field, _compass_instance);
 
-    // apply default board orientation for this compass type. This is
-    // a noop on most boards
-    _field[0].rotate(MAG_BOARD_ORIENTATION);
+}
 
-    // add user selectable orientation
-    _field[0].rotate((enum Rotation)_orientation[0].get());
-
-    if (!_external[0]) {
-        // and add in AHRS_ORIENTATION setting if not an external compass
-        _field[0].rotate(_board_orientation);
+AP_Compass_Backend* AP_Compass_FXOS8700::detect(Compass& compass) {
+    AP_Compass_FXOS8700 *sensor = new AP_Compass_FXOS8700(compass);
+    if (sensor == NULL) {
+        return NULL;
     }
-
-    apply_corrections(_field[0],0);
-
-    if(_learn) {
-    	learn_offsets();
+    if (!sensor->init()) {
+        delete sensor;
+        return NULL;
     }
-
-    _healthy[0] = true;
-
-    return true;
+    return sensor;
 }

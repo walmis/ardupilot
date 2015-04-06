@@ -6,16 +6,16 @@
 #include "../AP_Math/AP_Math.h"
 
 #include "Compass.h"
+#include "AP_Compass_Backend.h"
 
-class AP_Compass_FXOS8700 : public Compass
+class AP_Compass_FXOS8700 : public AP_Compass_Backend
 {
 private:
     bool                _initialised;
-    virtual bool        read_raw(void);
+    bool        		read_raw(void);
     uint8_t             _base_config;
     bool                read_register(uint8_t address, uint8_t *value);
     bool                write_register(uint8_t address, uint8_t value);
-    void 				_on_data();
     uint32_t            _retry_time; // when unhealthy the millis() value to retry at
     AP_HAL::Semaphore*  _i2c_sem;
 
@@ -29,12 +29,25 @@ private:
     uint32_t            _last_accum_time;
 
     uint8_t				_sample_buffer[6];
+
+    uint8_t             _compass_instance;
 public:
-    AP_Compass_FXOS8700() : Compass() {
-    }
+    AP_Compass_FXOS8700(Compass &compass) :
+    	AP_Compass_Backend(compass),
+		_mag_x(0),
+		_mag_y(0),
+		_mag_z(0),
+		_mag_x_accum(0),
+		_mag_y_accum(0),
+		_mag_z_accum(0),
+		_accum_count(0)
+    {}
+
     bool        init(void);
-    bool        read(void);
+    void        read(void);
     void        accumulate(void);
+
+    static AP_Compass_Backend *detect(Compass &compass);
 
 };
 

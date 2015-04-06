@@ -115,13 +115,6 @@ const AP_Param::Info var_info[] PROGMEM = {
     // @User: Standard
     GSCALAR(fs_batt_mah,            "FS_BATT_MAH", FS_BATT_MAH_DEFAULT),
 
-    // @Param: FS_GPS_ENABLE
-    // @DisplayName: GPS Failsafe Enable
-    // @Description: Controls what action will be taken if GPS signal is lost for at least 5 seconds
-    // @Values: 0:Disabled,1:Land,2:AltHold,3:Land even from Stabilize
-    // @User: Standard
-    GSCALAR(failsafe_gps_enabled, "FS_GPS_ENABLE", FS_GPS_LAND),
-
     // @Param: FS_GCS_ENABLE
     // @DisplayName: Ground Station Failsafe Enable
     // @Description: Controls whether failsafe will be invoked (and what action to take) when connection with Ground station is lost for at least 5 seconds. NB. The GCS Failsafe is only active when RC_OVERRIDE is being used to control the vehicle.
@@ -225,15 +218,6 @@ const AP_Param::Info var_info[] PROGMEM = {
     // @Increment: 1
     // @User: Standard
     GSCALAR(throttle_min,   "THR_MIN",          THR_MIN_DEFAULT),
-
-    // @Param: THR_MAX
-    // @DisplayName: Throttle Maximum
-    // @Description: The maximum throttle that will be sent to the motors.  This should normally be left as 1000.
-    // @Units: Percent*10
-    // @Range: 800 1000
-    // @Increment: 1
-    // @User: Advanced
-    GSCALAR(throttle_max,   "THR_MAX",          THR_MAX_DEFAULT),
 
     // @Param: FS_THR_ENABLE
     // @DisplayName: Throttle Failsafe Enable
@@ -362,16 +346,44 @@ const AP_Param::Info var_info[] PROGMEM = {
     // @Param: CH7_OPT
     // @DisplayName: Channel 7 option
     // @Description: Select which function if performed when CH7 is above 1800 pwm
-    // @Values: 0:Do Nothing, 2:Flip, 3:Simple Mode, 4:RTL, 5:Save Trim, 7:Save WP, 8:Multi Mode, 9:Camera Trigger, 10:RangeFinder, 11:Fence, 12:ResetToArmedYaw, 13:Super Simple Mode, 14:Acro Trainer, 16:Auto, 17:AutoTune, 18:Land, 19:EPM, 20:EKF, 21:Parachute Enable, 22:Parachute Release, 23:Parachute 3pos, 24:Auto Mission Reset, 25:AttCon Feed Forward, 26:AttCon Accel Limits, 27:Retract Mount, 28:Relay On/Off, 29:Landing Gear
+    // @Values: 0:Do Nothing, 2:Flip, 3:Simple Mode, 4:RTL, 5:Save Trim, 7:Save WP, 8:Multi Mode, 9:Camera Trigger, 10:RangeFinder, 11:Fence, 12:ResetToArmedYaw, 13:Super Simple Mode, 14:Acro Trainer, 16:Auto, 17:AutoTune, 18:Land, 19:EPM, 21:Parachute Enable, 22:Parachute Release, 23:Parachute 3pos, 24:Auto Mission Reset, 25:AttCon Feed Forward, 26:AttCon Accel Limits, 27:Retract Mount, 28:Relay On/Off, 29:Landing Gear
     // @User: Standard
-    GSCALAR(ch7_option, "CH7_OPT",                  CH7_OPTION),
+    GSCALAR(ch7_option, "CH7_OPT",                  AUXSW_DO_NOTHING),
 
     // @Param: CH8_OPT
     // @DisplayName: Channel 8 option
     // @Description: Select which function if performed when CH8 is above 1800 pwm
-    // @Values: 0:Do Nothing, 2:Flip, 3:Simple Mode, 4:RTL, 5:Save Trim, 7:Save WP, 8:Multi Mode, 9:Camera Trigger, 10:RangeFinder, 11:Fence, 12:ResetToArmedYaw, 13:Super Simple Mode, 14:Acro Trainer, 16:Auto, 17:AutoTune, 18:Land, 19:EPM, 20:EKF, 21:Parachute Enable, 22:Parachute Release, 23:Parachute 3pos, 24:Auto Mission Reset, 25:AttCon Feed Forward, 26:AttCon Accel Limits, 27:Retract Mount, 28:Relay On/Off, 29:Landing Gear
+    // @Values: 0:Do Nothing, 2:Flip, 3:Simple Mode, 4:RTL, 5:Save Trim, 7:Save WP, 8:Multi Mode, 9:Camera Trigger, 10:RangeFinder, 11:Fence, 12:ResetToArmedYaw, 13:Super Simple Mode, 14:Acro Trainer, 16:Auto, 17:AutoTune, 18:Land, 19:EPM, 21:Parachute Enable, 22:Parachute Release, 23:Parachute 3pos, 24:Auto Mission Reset, 25:AttCon Feed Forward, 26:AttCon Accel Limits, 27:Retract Mount, 28:Relay On/Off, 29:Landing Gear
     // @User: Standard
-    GSCALAR(ch8_option, "CH8_OPT",                  CH8_OPTION),
+    GSCALAR(ch8_option, "CH8_OPT",                  AUXSW_DO_NOTHING),
+
+    // @Param: CH9_OPT
+    // @DisplayName: Channel 9 option
+    // @Description: Select which function if performed when CH9 is above 1800 pwm
+    // @Values: 0:Do Nothing, 2:Flip, 3:Simple Mode, 4:RTL, 5:Save Trim, 7:Save WP, 8:Multi Mode, 9:Camera Trigger, 10:RangeFinder, 11:Fence, 12:ResetToArmedYaw, 13:Super Simple Mode, 14:Acro Trainer, 16:Auto, 17:AutoTune, 18:Land, 19:EPM, 21:Parachute Enable, 22:Parachute Release, 23:Parachute 3pos, 24:Auto Mission Reset, 25:AttCon Feed Forward, 26:AttCon Accel Limits, 27:Retract Mount, 28:Relay On/Off, 29:Landing Gear
+    // @User: Standard
+    GSCALAR(ch9_option, "CH9_OPT",                  AUXSW_DO_NOTHING),
+
+    // @Param: CH10_OPT
+    // @DisplayName: Channel 10 option
+    // @Description: Select which function if performed when CH10 is above 1800 pwm
+    // @Values: 0:Do Nothing, 2:Flip, 3:Simple Mode, 4:RTL, 5:Save Trim, 7:Save WP, 8:Multi Mode, 9:Camera Trigger, 10:RangeFinder, 11:Fence, 12:ResetToArmedYaw, 13:Super Simple Mode, 14:Acro Trainer, 16:Auto, 17:AutoTune, 18:Land, 19:EPM, 21:Parachute Enable, 22:Parachute Release, 23:Parachute 3pos, 24:Auto Mission Reset, 25:AttCon Feed Forward, 26:AttCon Accel Limits, 27:Retract Mount, 28:Relay On/Off, 29:Landing Gear
+    // @User: Standard
+    GSCALAR(ch10_option, "CH10_OPT",                AUXSW_DO_NOTHING),
+
+    // @Param: CH11_OPT
+    // @DisplayName: Channel 11 option
+    // @Description: Select which function if performed when CH11 is above 1800 pwm
+    // @Values: 0:Do Nothing, 2:Flip, 3:Simple Mode, 4:RTL, 5:Save Trim, 7:Save WP, 8:Multi Mode, 9:Camera Trigger, 10:RangeFinder, 11:Fence, 12:ResetToArmedYaw, 13:Super Simple Mode, 14:Acro Trainer, 16:Auto, 17:AutoTune, 18:Land, 19:EPM, 21:Parachute Enable, 22:Parachute Release, 23:Parachute 3pos, 24:Auto Mission Reset, 25:AttCon Feed Forward, 26:AttCon Accel Limits, 27:Retract Mount, 28:Relay On/Off, 29:Landing Gear
+    // @User: Standard
+    GSCALAR(ch11_option, "CH11_OPT",                AUXSW_DO_NOTHING),
+
+    // @Param: CH12_OPT
+    // @DisplayName: Channel 12 option
+    // @Description: Select which function if performed when CH12 is above 1800 pwm
+    // @Values: 0:Do Nothing, 2:Flip, 3:Simple Mode, 4:RTL, 5:Save Trim, 7:Save WP, 8:Multi Mode, 9:Camera Trigger, 10:RangeFinder, 11:Fence, 12:ResetToArmedYaw, 13:Super Simple Mode, 14:Acro Trainer, 16:Auto, 17:AutoTune, 18:Land, 19:EPM, 21:Parachute Enable, 22:Parachute Release, 23:Parachute 3pos, 24:Auto Mission Reset, 25:AttCon Feed Forward, 26:AttCon Accel Limits, 27:Retract Mount, 28:Relay On/Off, 29:Landing Gear
+    // @User: Standard
+    GSCALAR(ch12_option, "CH12_OPT",                AUXSW_DO_NOTHING),
 
     // @Param: ARMING_CHECK
     // @DisplayName: Arming check
@@ -428,13 +440,6 @@ const AP_Param::Info var_info[] PROGMEM = {
     // @Values: 0:Disabled, 0.6:Strict, 0.8:Default, 1.0:Relaxed
     // @User: Advanced
     GSCALAR(ekfcheck_thresh, "EKF_CHECK_THRESH",    EKFCHECK_THRESHOLD_DEFAULT),
-
-    // @Param: DCM_CHECK_THRESH
-    // @DisplayName: DCM yaw error threshold
-    // @Description: Allows setting the maximum acceptable yaw error as a sin of the yaw error (0 to disable check)
-    // @Values: 0:Disabled, 0.6:Strict, 0.8:Default, 0.98:Relaxed
-    // @User: Advanced
-    GSCALAR(dcmcheck_thresh, "DCM_CHECK_THRESH",    DCMCHECK_THRESHOLD_DEFAULT),
 
 #if FRAME_CONFIG ==     HELI_FRAME
     // @Group: HS1_
@@ -810,10 +815,6 @@ const AP_Param::Info var_info[] PROGMEM = {
     // @Path: ../libraries/AP_InertialSensor/AP_InertialSensor.cpp
     GOBJECT(ins,            "INS_", AP_InertialSensor),
 
-    // @Group: INAV_
-    // @Path: ../libraries/AP_InertialNav/AP_InertialNav.cpp
-    GOBJECT(inertial_nav,           "INAV_",    AP_InertialNav),
-
     // @Group: WPNAV_
     // @Path: ../libraries/AC_WPNav/AC_WPNav.cpp
     GOBJECT(wp_nav, "WPNAV_",       AC_WPNav),
@@ -902,14 +903,6 @@ const AP_Param::Info var_info[] PROGMEM = {
     // @Path: ../libraries/AP_Rally/AP_Rally.cpp
     GOBJECT(rally,      "RALLY_",   AP_Rally),
 #endif
-
-    // @Group: GPSGLITCH_
-    // @Path: ../libraries/AP_GPS/AP_GPS_Glitch.cpp
-    GOBJECT(gps_glitch,      "GPSGLITCH_",   GPS_Glitch),
-
-    // @Group: BAROGLTCH_
-    // @Path: ../libraries/AP_Baro/AP_Baro_Glitch.cpp
-    GOBJECT(baro_glitch,    "BAROGLTCH_",   Baro_Glitch),
 
 #if FRAME_CONFIG ==     HELI_FRAME
     // @Group: H_
@@ -1050,12 +1043,6 @@ static void load_parameters(void)
     }
     if (!ahrs._kp_yaw.load()) {
         ahrs._kp_yaw.set_and_save(0.1);
-    }
-
-    // setup different Compass learn setting for ArduCopter than the default
-    // but allow users to override in their config
-    if (!compass._learn.load()) {
-        compass._learn.set_and_save(0);
     }
 
     if (!g.format_version.load() ||

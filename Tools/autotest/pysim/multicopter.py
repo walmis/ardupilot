@@ -103,7 +103,7 @@ class MultiCopter(Aircraft):
         # to hover against gravity when each motor is at hover_throttle
         self.thrust_scale = (self.mass * self.gravity) / (len(self.motors) * self.hover_throttle)
 
-        self.last_time = time.time()
+        self.last_time = self.time_now
 
     def update(self, servos):
         for i in range(0, len(self.motors)):
@@ -117,7 +117,7 @@ class MultiCopter(Aircraft):
         m = self.motor_speed
 
         # how much time has passed?
-        t = time.time()
+        t = self.time_now
         delta_time = t - self.last_time
         self.last_time = t
 
@@ -188,4 +188,4 @@ class MultiCopter(Aircraft):
                                     -(self.ground_level + self.frame_height - self.home_altitude))
 
         # update lat/lon/altitude
-        self.update_position(delta_time)
+        self.update_position()

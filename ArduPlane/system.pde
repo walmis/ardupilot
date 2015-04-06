@@ -83,6 +83,13 @@ static void init_ardupilot()
     //
     load_parameters();
 
+    if (g.hil_mode == 1) {
+        // set sensors to HIL mode
+        ins.set_hil_mode();
+        compass.set_hil_mode();
+        barometer.set_hil_mode();
+    }
+
 #if CONFIG_HAL_BOARD == HAL_BOARD_PX4
     // this must be before BoardConfig.init() so if
     // BRD_SAFETYENABLE==0 then we don't have safety off yet
@@ -113,7 +120,7 @@ static void init_ardupilot()
     battery.init();
 
     // init the GCS
-    gcs[0].setup_uart(serial_manager, AP_SerialManager::SerialProtocol_Console);
+    gcs[0].setup_uart(serial_manager, AP_SerialManager::SerialProtocol_Console, 0);
 
     // we start by assuming USB connected, as we initialed the serial
     // port with SERIAL0_BAUD. check_usb_mux() fixes this if need be.    
@@ -121,11 +128,11 @@ static void init_ardupilot()
     check_usb_mux();
 
     // setup serial port for telem1
-    gcs[1].setup_uart(serial_manager, AP_SerialManager::SerialProtocol_MAVLink1);
+    gcs[1].setup_uart(serial_manager, AP_SerialManager::SerialProtocol_MAVLink, 0);
 
 #if MAVLINK_COMM_NUM_BUFFERS > 2
     // setup serial port for telem2
-    gcs[2].setup_uart(serial_manager, AP_SerialManager::SerialProtocol_MAVLink2);
+    gcs[2].setup_uart(serial_manager, AP_SerialManager::SerialProtocol_MAVLink, 1);
 #endif
 
     // setup frsky
@@ -502,18 +509,14 @@ static void check_short_failsafe()
 
 static void startup_INS_ground(void)
 {
-#if HIL_MODE != HIL_MODE_DISABLED
-    while (barometer.get_last_update() == 0) {
-        // the barometer begins updating when we get the first
-        // HIL_STATE message
-        gcs_send_text_P(SEVERITY_LOW, PSTR("Waiting for first HIL_STATE message"));
-        hal.scheduler->delay(1000);
+    if (g.hil_mode == 1) {
+        while (barometer.get_last_update() == 0) {
+            // the barometer begins updating when we get the first
+            // HIL_STATE message
+            gcs_send_text_P(SEVERITY_LOW, PSTR("Waiting for first HIL_STATE message"));
+            hal.scheduler->delay(1000);
+        }
     }
-    
-    // set INS to HIL mode
-    ins.set_hil_mode();
-    barometer.set_hil_mode();
-#endif
 
     AP_InertialSensor::Start_style style;
     if (g.skip_gyro_cal) {
@@ -581,9 +584,9 @@ static void check_usb_mux(void)
     // SERIAL0_BAUD, but when connected as a TTL serial port we run it
     // at SERIAL1_BAUD.
     if (usb_connected) {
-        serial_manager.set_console_baud(AP_SerialManager::SerialProtocol_Console);
+        serial_manager.set_console_baud(AP_SerialManager::SerialProtocol_Console, 0);
     } else {
-        serial_manager.set_console_baud(AP_SerialManager::SerialProtocol_MAVLink1);
+        serial_manager.set_console_baud(AP_SerialManager::SerialProtocol_MAVLink, 0);
     }
 #endif
 }
@@ -649,14 +652,12 @@ static void print_comma(void)
  */
 static void servo_write(uint8_t ch, uint16_t pwm)
 {
-#if HIL_MODE != HIL_MODE_DISABLED
-    if (!g.hil_servos) {
+    if (g.hil_mode==1 && !g.hil_servos) {
         if (ch < 8) {
             RC_Channel::rc_channel(ch)->radio_out = pwm;
         }
         return;
     }
-#endif
     hal.rcout->enable_ch(ch);
     hal.rcout->write(ch, pwm);
 }
@@ -716,4 +717,44 @@ static void change_arm_state(void)
     if (should_log(MASK_LOG_MODE)) {
         DataFlash.Log_Write_Mode(control_mode);
     }
+}
+
+/*
+  arm motors
+ */
+static bool arm_motors(AP_Arming::ArmingMethod method)
+{
+    if (!arming.arm(method)) {
+        return false;
+    }
+
+    //only log if arming was successful
+    channel_throttle->enable_out();
+    change_arm_state();
+    return true;
+}
+
+/*
+  disarm motors
+ */
+static bool disarm_motors(void)
+{
+    if (!arming.disarm()) {
+        return false;
+    }
+    if (arming.arming_required() == AP_Arming::YES_ZERO_PWM) {
+        channel_throttle->disable_out();  
+    }
+    if (control_mode != AUTO) {
+        // reset the mission on disarm if we are not in auto
+        mission.reset();
+    }
+
+    // suppress the throttle in auto-throttle modes
+    throttle_suppressed = auto_throttle_mode;
+    
+    //only log if disarming was successful
+    change_arm_state();
+
+    return true;
 }

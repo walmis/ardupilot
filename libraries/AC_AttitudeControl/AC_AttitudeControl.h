@@ -29,8 +29,8 @@
 #define AC_ATTITUDE_ANGLE_YAW_CONTROLLER_OUT_MAX        4500.0f // earth-frame angle controller maximum output (for yaw axis)
 #define AC_ATTITUDE_ANGLE_CONTROLLER_ANGLE_MAX          4500.0f // earth-frame angle controller maximum input angle (To-Do: replace with reference to aparm.angle_max)
 
-#define AC_ATTITUDE_RATE_STAB_ROLL_OVERSHOOT_ANGLE_MAX  3000.0f // earth-frame rate stabilize controller's maximum overshoot angle
-#define AC_ATTITUDE_RATE_STAB_PITCH_OVERSHOOT_ANGLE_MAX 3000.0f // earth-frame rate stabilize controller's maximum overshoot angle
+#define AC_ATTITUDE_RATE_STAB_ROLL_OVERSHOOT_ANGLE_MAX  30000.0f // earth-frame rate stabilize controller's maximum overshoot angle (never limited)
+#define AC_ATTITUDE_RATE_STAB_PITCH_OVERSHOOT_ANGLE_MAX 30000.0f // earth-frame rate stabilize controller's maximum overshoot angle (never limited)
 #define AC_ATTITUDE_RATE_STAB_YAW_OVERSHOOT_ANGLE_MAX   1000.0f // earth-frame rate stabilize controller's maximum overshoot angle
 #define AC_ATTITUDE_RATE_STAB_ACRO_OVERSHOOT_ANGLE_MAX  3000.0f // earth-frame rate stabilize controller's maximum overshoot angle
 
@@ -138,7 +138,7 @@ public:
     // angle_ef_targets - returns angle controller earth-frame targets (for reporting)
     const Vector3f& angle_ef_targets() const { return _angle_ef_target; }
 
-    // rate_bf_targets - gets rate controller body-frame targets
+    // rate_bf_targets - sets rate controller body-frame targets
     void rate_bf_roll_target(float rate_cds) { _rate_bf_target.x = rate_cds; }
     void rate_bf_pitch_target(float rate_cds) { _rate_bf_target.y = rate_cds; }
     void rate_bf_yaw_target(float rate_cds) { _rate_bf_target.z = rate_cds; }

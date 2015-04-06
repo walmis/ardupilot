@@ -396,6 +396,10 @@ void AP_InertialSensor::_add_backend(AP_InertialSensor_Backend *(detect)(AP_Iner
 void 
 AP_InertialSensor::_detect_backends(void)
 {
+    if (_hil_mode) {
+        _add_backend(AP_InertialSensor_HIL::detect);
+        return;
+    }
 #if HAL_INS_DEFAULT == HAL_INS_HIL
     _add_backend(AP_InertialSensor_HIL::detect);
 #elif HAL_INS_DEFAULT == HAL_INS_MPU6000
@@ -449,6 +453,13 @@ bool AP_InertialSensor::calibrate_accel(AP_InertialSensor_UserInteract* interact
     Vector3f orig_offset[INS_MAX_INSTANCES];
     Vector3f orig_scale[INS_MAX_INSTANCES];
     uint8_t num_ok = 0;
+
+    // exit immediately if calibration is already in progress
+    if (_calibrating) {
+        return false;
+    }
+
+    _calibrating = true;
 
     /*
       we do the accel calibration with no board rotation. This avoids
@@ -504,23 +515,35 @@ bool AP_InertialSensor::calibrate_accel(AP_InertialSensor_UserInteract* interact
             goto failed;
         }
 
-        // clear out any existing samples from ins
-        update();
+        const uint8_t update_dt_milliseconds = (uint8_t)(1000.0f/get_sample_rate()+0.5f);
 
-        uint8_t num_samples = 0;
-        while (num_samples < 32) {
+        // wait 100ms for ins filter to rise
+        for (uint8_t k=0; k<100/update_dt_milliseconds; k++) {
+            wait_for_sample();
+            update();
+            hal.scheduler->delay(update_dt_milliseconds);
+        }
+
+        uint32_t num_samples = 0;
+        while (num_samples < 400/update_dt_milliseconds) {
             wait_for_sample();
             // read samples from ins
             update();
             // capture sample
             for (uint8_t k=0; k<num_accels; k++) {
-                samples[k][i] += get_accel(k);
+                Vector3f samp;
+                if(get_delta_velocity(k,samp) && _delta_velocity_dt[k] > 0) {
+                    samp /= _delta_velocity_dt[k];
+                } else {
+                    samp = get_accel(k);
+                }
+                samples[k][i] += samp;
                 if (!get_accel_health(k)) {
                     interact->printf_P(PSTR("accel[%u] not healthy"), (unsigned)k);
                     goto failed;
                 }
             }
-            hal.scheduler->delay(10);
+            hal.scheduler->delay(update_dt_milliseconds);
             num_samples++;
         }
         for (uint8_t k=0; k<num_accels; k++) {
@@ -569,6 +592,7 @@ bool AP_InertialSensor::calibrate_accel(AP_InertialSensor_UserInteract* interact
 
         _board_orientation = saved_orientation;
 
+        _calibrating = false;
         return true;
     }
 
@@ -580,6 +604,7 @@ failed:
         _accel_scale[k].set(orig_scale[k]);
     }
     _board_orientation = saved_orientation;
+    _calibrating = false;
     return false;
 }
 #endif
@@ -666,6 +691,7 @@ AP_InertialSensor::_init_gyro()
 {
     uint8_t num_gyros = min(get_gyro_count(), INS_MAX_INSTANCES);
     Vector3f last_average[INS_MAX_INSTANCES], best_avg[INS_MAX_INSTANCES];
+    Vector3f new_gyro_offset[INS_MAX_INSTANCES];
     float best_diff[INS_MAX_INSTANCES];
     bool converged[INS_MAX_INSTANCES];
 
@@ -693,6 +719,7 @@ AP_InertialSensor::_init_gyro()
     // remove existing gyro offsets
     for (uint8_t k=0; k<num_gyros; k++) {
         _gyro_offset[k].set(Vector3f());
+        new_gyro_offset[k].zero();
         best_diff[k] = 0;
         last_average[k].zero();
         converged[k] = false;
@@ -755,8 +782,8 @@ AP_InertialSensor::_init_gyro()
             } else if (gyro_diff[k].length() < ToRad(0.1f)) {
                 // we want the average to be within 0.1 bit, which is 0.04 degrees/s
                 last_average[k] = (gyro_avg[k] * 0.5f) + (last_average[k] * 0.5f);
-                if (!converged[k] || last_average[k].length() < _gyro_offset[k].get().length()) {
-                    _gyro_offset[k] = last_average[k];
+                if (!converged[k] || last_average[k].length() < new_gyro_offset[k].length()) {
+                    new_gyro_offset[k] = last_average[k];
                 }
                 if (!converged[k]) {
                     converged[k] = true;
@@ -782,6 +809,7 @@ AP_InertialSensor::_init_gyro()
             _gyro_cal_ok[k] = false;
         } else {
             _gyro_cal_ok[k] = true;
+            _gyro_offset[k] = new_gyro_offset[k];
         }
     }
 

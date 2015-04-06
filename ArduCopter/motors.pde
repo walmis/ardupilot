@@ -117,9 +117,6 @@ static bool init_arm_motors(bool arming_from_gcs)
     // disable cpu failsafe because initialising everything takes a while
     failsafe_disable();
 
-    // disable inertial nav errors temporarily
-    inertial_nav.ignore_next_error();
-
     // reset battery failsafe
     set_failsafe_battery(false);
 
@@ -161,9 +158,6 @@ static bool init_arm_motors(bool arming_from_gcs)
 
     // fast baro calibration to reset ground pressure
     init_barometer(false);
-
-    // reset inertial nav alt to zero
-    inertial_nav.set_altitude(0.0f);
 
     // go back to normal AHRS gains
     ahrs.set_fast_gains(false);
@@ -410,9 +404,9 @@ static bool pre_arm_checks(bool display_failure)
     if ((g.arming_check == ARMING_CHECK_ALL) || (g.arming_check & ARMING_CHECK_PARAMETERS)) {
 
         // ensure ch7 and ch8 have different functions
-        if ((g.ch7_option != 0 || g.ch8_option != 0) && g.ch7_option == g.ch8_option) {
+        if (check_duplicate_auxsw()) {
             if (display_failure) {
-                gcs_send_text_P(SEVERITY_HIGH,PSTR("PreArm: Ch7&Ch8 Option cannot be same"));
+                gcs_send_text_P(SEVERITY_HIGH,PSTR("PreArm: Duplicate Aux Switch Options"));
             }
             return false;
         }
@@ -505,11 +499,6 @@ static bool pre_arm_gps_checks(bool display_failure)
     // check if flight mode requires GPS
     bool gps_required = mode_requires_GPS(control_mode);
 
-    // if GPS failsafe will triggers even in stabilize mode we need GPS before arming
-    if (g.failsafe_gps_enabled == FS_GPS_LAND_EVEN_STABILIZE) {
-        gps_required = true;
-    }
-
 #if AC_FENCE == ENABLED
     // if circular fence is enabled we need GPS
     if ((fence.get_enabled_fences() & AC_FENCE_TYPE_CIRCLE) != 0) {
@@ -523,29 +512,10 @@ static bool pre_arm_gps_checks(bool display_failure)
         return true;
     }
 
-    // check GPS is not glitching
-    if (gps_glitch.glitching()) {
-        if (display_failure) {
-            gcs_send_text_P(SEVERITY_HIGH,PSTR("PreArm: GPS Glitch"));
-        }
-        AP_Notify::flags.pre_arm_gps_check = false;
-        return false;
-    }
-
     // ensure GPS is ok
     if (!position_ok()) {
         if (display_failure) {
             gcs_send_text_P(SEVERITY_HIGH,PSTR("PreArm: Need 3D Fix"));
-        }
-        AP_Notify::flags.pre_arm_gps_check = false;
-        return false;
-    }
-
-    // check speed is below 50cm/s
-    float speed_cms = inertial_nav.get_velocity().length();     // speed according to inertial nav in cm/s
-    if (speed_cms == 0 || speed_cms > PREARM_MAX_VELOCITY_CMS) {
-        if (display_failure) {
-            gcs_send_text_P(SEVERITY_HIGH,PSTR("PreArm: Bad Velocity"));
         }
         AP_Notify::flags.pre_arm_gps_check = false;
         return false;
@@ -687,9 +657,6 @@ static void init_disarm_motors()
 #endif
 
     motors.armed(false);
-
-    // disable inertial nav errors temporarily
-    inertial_nav.ignore_next_error();
 
     // save offsets if automatic offset learning is on
     if (compass.learn_offsets_enabled()) {

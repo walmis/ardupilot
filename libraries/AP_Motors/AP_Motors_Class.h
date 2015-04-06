@@ -124,12 +124,9 @@ public:
     void                set_throttle(int16_t throttle_in) { _rc_throttle.servo_out = throttle_in; };    // range 0 ~ 1000
 
     // accessors for roll, pitch, yaw and throttle inputs to motors
-    int16_t             get_roll() { return _rc_roll.servo_out; }
-    int16_t             get_pitch() { return _rc_pitch.servo_out; }
-    int16_t             get_yaw() { return _rc_yaw.servo_out; }
-    int16_t             get_throttle() { return _rc_throttle.servo_out; }
-
-    // get_throttle_out - returns throttle sent to motors in the range 0 ~ 1000
+    int16_t             get_roll() const { return _rc_roll.servo_out; }
+    int16_t             get_pitch() const { return _rc_pitch.servo_out; }
+    int16_t             get_yaw() const { return _rc_yaw.servo_out; }
     int16_t             get_throttle_out() const { return _rc_throttle.servo_out; }
 
     // output - sends commands to the motors
@@ -198,8 +195,8 @@ public:
 protected:
 
     // output functions that should be overloaded by child classes
-    virtual void        output_armed() {};
-    virtual void        output_disarmed() {};
+    virtual void        output_armed()=0;
+    virtual void        output_disarmed()=0;
 
     // update_max_throttle - updates the limits on _max_throttle for slow_start and current limiting flag
     void                update_max_throttle();

@@ -864,6 +864,10 @@ def setup_rc(mavproxy):
     # zero throttle
     mavproxy.send('rc 3 1000\n')
 
+def wait_seconds(mav, wait_time_sec):
+    tstart = time.time()
+    while time.time() < tstart + wait_time_sec:
+        m = mav.recv_match(type='VFR_HUD', blocking=True)
 
 def fly_ArduCopter(viewerip=None, map=False):
     '''fly ArduCopter in SIL
@@ -876,7 +880,7 @@ def fly_ArduCopter(viewerip=None, map=False):
     if TARGET != 'sitl':
         util.build_SIL('ArduCopter', target=TARGET)
 
-    sim_cmd = util.reltopdir('Tools/autotest/pysim/sim_multicopter.py') + ' --frame=%s --rate=400 --home=%f,%f,%u,%u' % (
+    sim_cmd = util.reltopdir('Tools/autotest/pysim/sim_multicopter.py') + ' --frame=%s --speedup=100 --rate=400 --home=%f,%f,%u,%u' % (
         FRAME, HOME.lat, HOME.lng, HOME.alt, HOME.heading)
     sim_cmd += ' --wind=6,45,.3'
     if viewerip:
@@ -884,6 +888,9 @@ def fly_ArduCopter(viewerip=None, map=False):
 
     sil = util.start_SIL('ArduCopter', wipe=True)
     mavproxy = util.start_MAVProxy_SIL('ArduCopter', options='--sitl=127.0.0.1:5501 --out=127.0.0.1:19550 --quadcopter')
+    sim = pexpect.spawn(sim_cmd, logfile=sys.stdout, timeout=10)
+    sim.delaybeforesend = 0
+    util.pexpect_autoclose(sim)
     mavproxy.expect('Received [0-9]+ parameters')
 
     # setup test parameters
@@ -893,11 +900,9 @@ def fly_ArduCopter(viewerip=None, map=False):
     # reboot with new parameters
     util.pexpect_close(mavproxy)
     util.pexpect_close(sil)
+    util.pexpect_close(sim)
 
     sil = util.start_SIL('ArduCopter', height=HOME.alt)
-    sim = pexpect.spawn(sim_cmd, logfile=sys.stdout, timeout=10)
-    sim.delaybeforesend = 0
-    util.pexpect_autoclose(sim)
     options = '--sitl=127.0.0.1:5501 --out=127.0.0.1:19550 --quadcopter --streamrate=5'
     if viewerip:
         options += ' --out=%s:14550' % viewerip
@@ -907,6 +912,10 @@ def fly_ArduCopter(viewerip=None, map=False):
     mavproxy.expect('Logging to (\S+)')
     logfile = mavproxy.match.group(1)
     print("LOGFILE %s" % logfile)
+
+    sim = pexpect.spawn(sim_cmd, logfile=sys.stdout, timeout=10)
+    sim.delaybeforesend = 0
+    util.pexpect_autoclose(sim)
 
     buildlog = util.reltopdir("../buildlogs/ArduCopter-test.tlog")
     print("buildlog=%s" % buildlog)
@@ -945,6 +954,9 @@ def fly_ArduCopter(viewerip=None, map=False):
         mav.wait_heartbeat()
         setup_rc(mavproxy)
         homeloc = mav.location()
+
+        # wait 10sec to allow EKF to settle
+        wait_seconds(mav, 10)
 
         # Arm
         print("# Arm motors")
@@ -1240,13 +1252,16 @@ def fly_CopterAVC(viewerip=None, map=False):
     if TARGET != 'sitl':
         util.build_SIL('ArduCopter', target=TARGET)
 
-    sim_cmd = util.reltopdir('Tools/autotest/pysim/sim_multicopter.py') + ' --frame=%s --rate=400 --home=%f,%f,%u,%u' % (
+    sim_cmd = util.reltopdir('Tools/autotest/pysim/sim_multicopter.py') + ' --frame=%s --rate=400 --speedup=100 --home=%f,%f,%u,%u' % (
         FRAME, AVCHOME.lat, AVCHOME.lng, AVCHOME.alt, AVCHOME.heading)
     if viewerip:
         sim_cmd += ' --fgout=%s:5503' % viewerip
 
     sil = util.start_SIL('ArduCopter', wipe=True)
     mavproxy = util.start_MAVProxy_SIL('ArduCopter', options='--sitl=127.0.0.1:5501 --out=127.0.0.1:19550 --quadcopter')
+    sim = pexpect.spawn(sim_cmd, logfile=sys.stdout, timeout=10)
+    sim.delaybeforesend = 0
+    util.pexpect_autoclose(sim)
     mavproxy.expect('Received [0-9]+ parameters')
 
     # setup test parameters
@@ -1256,11 +1271,9 @@ def fly_CopterAVC(viewerip=None, map=False):
     # reboot with new parameters
     util.pexpect_close(mavproxy)
     util.pexpect_close(sil)
+    util.pexpect_close(sim)
 
     sil = util.start_SIL('ArduCopter', height=HOME.alt)
-    sim = pexpect.spawn(sim_cmd, logfile=sys.stdout, timeout=10)
-    sim.delaybeforesend = 0
-    util.pexpect_autoclose(sim)
     options = '--sitl=127.0.0.1:5501 --out=127.0.0.1:19550 --quadcopter --streamrate=5'
     if viewerip:
         options += ' --out=%s:14550' % viewerip
@@ -1270,6 +1283,10 @@ def fly_CopterAVC(viewerip=None, map=False):
     mavproxy.expect('Logging to (\S+)')
     logfile = mavproxy.match.group(1)
     print("LOGFILE %s" % logfile)
+
+    sim = pexpect.spawn(sim_cmd, logfile=sys.stdout, timeout=10)
+    sim.delaybeforesend = 0
+    util.pexpect_autoclose(sim)
 
     buildlog = util.reltopdir("../buildlogs/CopterAVC-test.tlog")
     print("buildlog=%s" % buildlog)
@@ -1310,6 +1327,9 @@ def fly_CopterAVC(viewerip=None, map=False):
         mav.wait_heartbeat()
         setup_rc(mavproxy)
         homeloc = mav.location()
+
+        # wait 10sec to allow EKF to settle
+        wait_seconds(mav, 10)
 
         # Arm
         print("# Arm motors")

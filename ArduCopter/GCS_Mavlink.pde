@@ -43,7 +43,7 @@ static NOINLINE void send_heartbeat(mavlink_channel_t chan)
     uint32_t custom_mode = control_mode;
 
     // set system as critical if any failsafe have triggered
-    if (failsafe.radio || failsafe.battery || failsafe.gps || failsafe.gcs || failsafe.ekf)  {
+    if (failsafe.radio || failsafe.battery || failsafe.gcs || failsafe.ekf)  {
         system_status = MAV_STATE_CRITICAL;
     }
 
@@ -197,7 +197,7 @@ static NOINLINE void send_extended_status1(mavlink_channel_t chan)
     if (g.compass_enabled && compass.healthy(0) && ahrs.use_compass()) {
         control_sensors_health |= MAV_SYS_STATUS_SENSOR_3D_MAG;
     }
-    if (gps.status() > AP_GPS::NO_GPS && (!gps_glitch.glitching()||ap.usb_connected)) {
+    if (gps.status() > AP_GPS::NO_GPS) {
         control_sensors_health |= MAV_SYS_STATUS_SENSOR_GPS;
     }
 #if OPTFLOW == ENABLED
@@ -223,7 +223,7 @@ static NOINLINE void send_extended_status1(mavlink_channel_t chan)
     int16_t battery_current = -1;
     int8_t battery_remaining = -1;
 
-    if (battery.has_current()) {
+    if (battery.has_current() && battery.healthy()) {
         battery_remaining = battery.capacity_remaining_pct();
         battery_current = battery.current_amps() * 100;
     }
@@ -485,6 +485,11 @@ bool GCS_MAVLINK::try_send_message(enum ap_message id)
     case MSG_LOCATION:
         CHECK_PAYLOAD_SIZE(GLOBAL_POSITION_INT);
         send_location(chan);
+        break;
+
+    case MSG_LOCAL_POSITION:
+        CHECK_PAYLOAD_SIZE(LOCAL_POSITION_NED);
+        send_local_position(ahrs);
         break;
 
     case MSG_NAV_CONTROLLER_OUTPUT:
@@ -824,6 +829,7 @@ GCS_MAVLINK::data_stream_send(void)
 
     if (stream_trigger(STREAM_POSITION)) {
         send_message(MSG_LOCATION);
+        send_message(MSG_LOCAL_POSITION);
     }
 
     if (gcs_out_of_time) return;
@@ -987,7 +993,9 @@ void GCS_MAVLINK::handleMessage(mavlink_message_t* msg)
 
     case MAVLINK_MSG_ID_GIMBAL_REPORT:
     {
+#if MOUNT == ENABLED
         handle_gimbal_report(camera_mount, msg);
+#endif
         break;
     }
 

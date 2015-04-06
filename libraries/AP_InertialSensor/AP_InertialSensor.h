@@ -126,8 +126,12 @@ public:
         if(_delta_velocity_valid[i]) delta_velocity = _delta_velocity[i];
         return _delta_velocity_valid[i];
     }
-
     bool get_delta_velocity(Vector3f &delta_velocity) const { return get_delta_velocity(_primary_accel, delta_velocity); }
+
+    float get_delta_velocity_dt(uint8_t i) const {
+        return _delta_velocity_dt[i];
+    }
+    float get_delta_velocity() const { return get_delta_velocity_dt(_primary_accel); }
 
     /// Fetch the current accelerometer values
     ///
@@ -160,6 +164,10 @@ public:
     // get accel scale
     const Vector3f &get_accel_scale(uint8_t i) const { return _accel_scale[i]; }
     const Vector3f &get_accel_scale(void) const { return get_accel_scale(_primary_accel); }
+
+    // return the temperature if supported. Zero is returned if no
+    // temperature is available
+    float get_temperature(uint8_t instance) const { return _temperature[instance]; }
 
     /* get_delta_time returns the time period in seconds
      * overwhich the sensor data was collected
@@ -247,6 +255,7 @@ private:
     // Most recent accelerometer reading
     Vector3f _accel[INS_MAX_INSTANCES];
     Vector3f _delta_velocity[INS_MAX_INSTANCES];
+    float _delta_velocity_dt[INS_MAX_INSTANCES];
     bool _delta_velocity_valid[INS_MAX_INSTANCES];
 
     // Most recent gyro reading
@@ -261,6 +270,9 @@ private:
     AP_Vector3f _accel_scale[INS_MAX_INSTANCES];
     AP_Vector3f _accel_offset[INS_MAX_INSTANCES];
     AP_Vector3f _gyro_offset[INS_MAX_INSTANCES];
+
+    // temperatures for an instance if available
+    float _temperature[INS_MAX_INSTANCES];
 
     // filtering frequency (0 means default)
     AP_Int8     _accel_filter_cutoff;

@@ -230,7 +230,16 @@ const AP_Param::Info var_info[] PROGMEM = {
     // @Units: seconds
     // @Increment: 0.1
     // @User: Advanced
-    GSCALAR(land_flare_sec,          "LAND_FLARE_SEC",  2.0),
+    ASCALAR(land_flare_sec,          "LAND_FLARE_SEC",  2.0),
+
+    // @Param: LAND_DISARMDELAY
+    // @DisplayName: Landing disarm delay
+    // @Description: After a landing has completed using a LAND waypoint, automatically disarm after this many seconds have passed. Use 0 to not disarm.
+    // @Units: seconds
+    // @Increment: 1
+    // @Range: 0 127
+    // @User: Advanced
+    GSCALAR(land_disarm_delay,       "LAND_DISARMDELAY",  0),
 
 	// @Param: NAV_CONTROLLER
 	// @DisplayName: Navigation controller selection
@@ -747,7 +756,7 @@ const AP_Param::Info var_info[] PROGMEM = {
 
     // @Param: LOG_BITMASK
     // @DisplayName: Log bitmask
-    // @Description: Bitmap of what log types to enable in dataflash. This values is made up of the sum of each of the log types you want to be saved on dataflash. On a PX4 or Pixhawk the large storage size of a microSD card means it is usually best just to enable all log types by setting this to 65535. On APM2 the smaller 4 MByte dataflash means you need to be more selective in your logging or you may run out of log space while flying (in which case it will wrap and overwrite the start of the log). The individual bits are ATTITUDE_FAST=1, ATTITUDE_MEDIUM=2, GPS=4, PerformanceMonitoring=8, ControlTuning=16, NavigationTuning=32, Mode=64, IMU=128, Commands=256, Battery=512, Compass=1024, TECS=2048, Camera=4096, RCandServo=8192, Sonar=16384, Arming=32768, LogWhenDisarmed=65536
+    // @Description: Bitmap of what log types to enable in dataflash. This values is made up of the sum of each of the log types you want to be saved on dataflash. On a PX4 or Pixhawk the large storage size of a microSD card means it is usually best just to enable all log types by setting this to 65535. On APM2 the smaller 4 MByte dataflash means you need to be more selective in your logging or you may run out of log space while flying (in which case it will wrap and overwrite the start of the log). The individual bits are ATTITUDE_FAST=1, ATTITUDE_MEDIUM=2, GPS=4, PerformanceMonitoring=8, ControlTuning=16, NavigationTuning=32, Mode=64, IMU=128, Commands=256, Battery=512, Compass=1024, TECS=2048, Camera=4096, RCandServo=8192, Sonar=16384, Arming=32768, LogWhenDisarmed=65536, FullLogsArmedOnly=65535, FullLogsWhenDisarmed=131071
     // @Values: 0:Disabled,5190:APM2-Default,65535:PX4/Pixhawk-Default
     // @User: Advanced
     GSCALAR(log_bitmask,            "LOG_BITMASK",    DEFAULT_LOG_BITMASK),
@@ -898,7 +907,13 @@ const AP_Param::Info var_info[] PROGMEM = {
     // @User: Standard
     GSCALAR(inverted_flight_ch,     "INVERTEDFLT_CH", 0),
 
-#if HIL_MODE != HIL_MODE_DISABLED
+    // @Param: HIL_MODE
+    // @DisplayName: HIL mode enable
+    // @Description: This enables and disables hardware in the loop mode. If HIL_MODE is 1 then on the next reboot all sensors are replaced with HIL sensors which come from the GCS.
+    // @Values: 0:Disabled,1:Enabled
+    // @User: Advanced
+    GSCALAR(hil_mode,               "HIL_MODE",      0),
+
     // @Param: HIL_SERVOS
     // @DisplayName: HIL Servos enable
     // @Description: This controls whether real servo controls are used in HIL mode. If you enable this then the APM will control the real servos in HIL mode. If disabled it will report servo values, but will not output to the real servos. Be careful that your motor and propeller are not connected if you enable this option.
@@ -914,7 +929,6 @@ const AP_Param::Info var_info[] PROGMEM = {
     // @Increment: 0.1
     // @User: Advanced
     GSCALAR(hil_err_limit,         "HIL_ERR_LIMIT",   5),
-#endif
 
     // @Param: RTL_AUTOLAND
     // @DisplayName: RTL auto land
@@ -924,7 +938,7 @@ const AP_Param::Info var_info[] PROGMEM = {
     GSCALAR(rtl_autoland,         "RTL_AUTOLAND",   0),
 
     // @Param: RC_TRIM_AT_START
-    // @DisplayNmae: RC Trims auto set at start.
+    // @DisplayName: RC Trims auto set at start.
     // @Description: Automatically set roll/pitch trim from Tx at ground start. This makes the assumption that the RC transmitter has not been altered since trims were last captured.
     // @Values: 0:Disable,1:Enable
     // @User: Standard

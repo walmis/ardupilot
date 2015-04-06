@@ -263,7 +263,7 @@ void crash_check();
 void parachute_check();
 static void parachute_release();
 static void parachute_manual_release();
-void ekf_dcm_check();
+void ekf_check();
 static void failsafe_ekf_event();
 static void failsafe_ekf_off_event(void);
 static void esc_calibration_startup_check();
@@ -444,6 +444,11 @@ inline bool autotune_pitch_enabled();
 inline bool autotune_yaw_enabled();
 inline bool autotune_roll_enabled();
 static void notify_flight_mode(uint8_t mode);
+static void init_aux_switch_function(int8_t ch_option, uint8_t ch_flag);
+static void Log_Write_MotBatt();
+void autotune_twitching_test(float measurement, float target, float &measurement_min, float &measurement_max);
+static bool check_if_auxsw_mode_used(uint8_t auxsw_mode_check);
+static bool check_duplicate_auxsw(void);
 
 
 #endif /* ARDUCOPTER_HPP_ */

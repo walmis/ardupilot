@@ -125,9 +125,9 @@ public:
         k_param_acro_expo,
         k_param_throttle_deadzone,
         k_param_optflow,
-        k_param_dcmcheck_thresh,        // 59
+        k_param_dcmcheck_thresh,        // deprecated - remove
         k_param_log_bitmask,
-        k_param_cli_enabled,
+        k_param_cli_enabled,            // 61
 
         // 65: AP_Limits Library
         k_param_limits = 65,            // deprecated - remove
@@ -135,8 +135,8 @@ public:
         k_param_geofence_limit,         // deprecated - remove
         k_param_altitude_limit,         // deprecated - remove
         k_param_fence,
-        k_param_gps_glitch,
-        k_param_baro_glitch,            // 71
+        k_param_gps_glitch,             // deprecated
+        k_param_baro_glitch,            // 71 - deprecated
 
         //
         // 75: Singlecopter, CoaxCopter
@@ -167,7 +167,7 @@ public:
         //
         // 100: Inertial Nav
         //
-        k_param_inertial_nav = 100,
+        k_param_inertial_nav = 100, // deprecated
         k_param_wp_nav,
         k_param_attitude_control,
         k_param_pos_control,
@@ -185,6 +185,10 @@ public:
         k_param_serial2_baud_old, // deprecated
         k_param_serial2_protocol, // deprecated
         k_param_serial_manager,  // 119
+        k_param_ch9_option,
+        k_param_ch10_option,
+        k_param_ch11_option,
+        k_param_ch12_option,     // 123
 
         //
         // 140: Sensor parameters
@@ -246,7 +250,7 @@ public:
         k_param_rc_10,
         k_param_rc_11,
         k_param_throttle_min,
-        k_param_throttle_max,
+        k_param_throttle_max,           // remove
         k_param_failsafe_throttle,
         k_param_throttle_fs_action,     // remove
         k_param_failsafe_throttle_value,
@@ -258,7 +262,7 @@ public:
         k_param_rc_speed = 192,
         k_param_failsafe_battery_enabled,
         k_param_throttle_mid,
-        k_param_failsafe_gps_enabled,
+        k_param_failsafe_gps_enabled,   // remove
         k_param_rc_9,
         k_param_rc_12,
         k_param_failsafe_gcs,           // 198
@@ -342,7 +346,6 @@ public:
     AP_Float        fs_batt_voltage;            // battery voltage below which failsafe will be triggered
     AP_Float        fs_batt_mah;                // battery capacity (in mah) below which failsafe will be triggered
 
-    AP_Int8         failsafe_gps_enabled;       // gps failsafe enabled
     AP_Int8         failsafe_gcs;               // ground station failsafe behavior
     AP_Int16        gps_hdop_good;              // GPS Hdop value at or below this value represent a good position
 
@@ -368,7 +371,6 @@ public:
     // Throttle
     //
     AP_Int16        throttle_min;
-    AP_Int16        throttle_max;
     AP_Int8         failsafe_throttle;
     AP_Int16        failsafe_throttle_value;
     AP_Int16        throttle_mid;
@@ -394,11 +396,14 @@ public:
     AP_Int8         frame_orientation;
     AP_Int8         ch7_option;
     AP_Int8         ch8_option;
+    AP_Int8         ch9_option;
+    AP_Int8         ch10_option;
+    AP_Int8         ch11_option;
+    AP_Int8         ch12_option;
     AP_Int8         arming_check;
 
     AP_Int8         land_repositioning;
     AP_Float        ekfcheck_thresh;
-    AP_Float        dcmcheck_thresh;
 
 #if FRAME_CONFIG ==     HELI_FRAME
     // Heli

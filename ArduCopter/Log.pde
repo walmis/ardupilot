@@ -339,7 +339,6 @@ struct PACKED log_Performance {
     int16_t  pm_test;
     uint8_t i2c_lockup_count;
     uint16_t ins_error_count;
-    uint8_t inav_error_count;
 };
 
 // Write a performance monitoring packet
@@ -352,8 +351,7 @@ static void Log_Write_Performance()
         max_time         : perf_info_get_max_time(),
         pm_test          : pmTest1,
         i2c_lockup_count : hal.i2c->lockup_count(),
-        ins_error_count  : ins.error_count(),
-        inav_error_count : inertial_nav.error_count()
+        ins_error_count  : ins.error_count()
     };
     DataFlash.WriteBlock(&pkt, sizeof(pkt));
 }
@@ -365,29 +363,6 @@ static void Log_Write_Cmd(const AP_Mission::Mission_Command &cmd)
     AP_Mission::mission_cmd_to_mavlink(cmd,mav_cmd);
     DataFlash.Log_Write_MavCmd(mission.num_commands(),mav_cmd);
 }
-
-struct PACKED log_Rate {
-    LOG_PACKET_HEADER;
-    uint32_t time_ms;
-    float   control_roll;
-    float   roll;
-    float   roll_out;
-    float   control_pitch;
-    float   pitch;
-    float   pitch_out;
-    float   control_yaw;
-    float   yaw;
-    float   yaw_out;
-};
-
-struct PACKED log_Mot {
-    LOG_PACKET_HEADER;
-    uint32_t time_ms;
-    float   lift_max;
-    float   bat_volt;
-    float   bat_res;
-    float   th_limit;
-};
 
 // Write an attitude packet
 static void Log_Write_Attitude()
@@ -407,6 +382,20 @@ static void Log_Write_Attitude()
     sitl.Log_Write_SIMSTATE(DataFlash);
 #endif
 }
+
+struct PACKED log_Rate {
+    LOG_PACKET_HEADER;
+    uint32_t time_ms;
+    float   control_roll;
+    float   roll;
+    float   roll_out;
+    float   control_pitch;
+    float   pitch;
+    float   pitch_out;
+    float   control_yaw;
+    float   yaw;
+    float   yaw_out;
+};
 
 // Write an rate packet
 static void Log_Write_Rate()
@@ -428,11 +417,20 @@ static void Log_Write_Rate()
     DataFlash.WriteBlock(&pkt_rate, sizeof(pkt_rate));
 }
 
+struct PACKED log_MotBatt {
+    LOG_PACKET_HEADER;
+    uint32_t time_ms;
+    float   lift_max;
+    float   bat_volt;
+    float   bat_res;
+    float   th_limit;
+};
+
 // Write an rate packet
-static void Log_Write_Mot()
+static void Log_Write_MotBatt()
 {
-    struct log_Mot pkt_mot = {
-        LOG_PACKET_HEADER_INIT(LOG_MOT_MSG),
+    struct log_MotBatt pkt_mot = {
+        LOG_PACKET_HEADER_INIT(LOG_MOTBATT_MSG),
         time_ms         : hal.scheduler->millis(),
         lift_max        : (float)(motors.get_lift_max()),
         bat_volt        : (float)(motors.get_batt_voltage_filt()),
@@ -607,11 +605,11 @@ static const struct LogStructure log_structure[] PROGMEM = {
     { LOG_CONTROL_TUNING_MSG, sizeof(log_Control_Tuning),
       "CTUN", "Ihhhffecchh", "TimeMS,ThrIn,AngBst,ThrOut,DAlt,Alt,BarAlt,DSAlt,SAlt,DCRt,CRt" },
     { LOG_PERFORMANCE_MSG, sizeof(log_Performance), 
-      "PM",  "HHIhBHB",    "NLon,NLoop,MaxT,PMT,I2CErr,INSErr,INAVErr" },
+      "PM",  "HHIhBH",    "NLon,NLoop,MaxT,PMT,I2CErr,INSErr" },
     { LOG_RATE_MSG, sizeof(log_Rate),
       "RATE", "Ifffffffff",  "TimeMS,RllDes,Rll,RllOut,PitDes,Pit,PitOut,YawDes,Yaw,YawOut" },
-    { LOG_MOT_MSG, sizeof(log_Mot),
-      "MOT", "Iffff",  "TimeMS,LiftMax,BatVolt,BatRes,ThLimit" },
+    { LOG_MOTBATT_MSG, sizeof(log_MotBatt),
+      "MOTB", "Iffff",  "TimeMS,LiftMax,BatVolt,BatRes,ThLimit" },
     { LOG_STARTUP_MSG, sizeof(log_Startup),         
       "STRT", "",            "" },
     { LOG_EVENT_MSG, sizeof(log_Event),         
@@ -687,7 +685,7 @@ static void Log_Write_AutoTuneDetails(float angle_cd, float rate_cds) {}
 static void Log_Write_Current() {}
 static void Log_Write_Attitude() {}
 static void Log_Write_Rate() {}
-static void Log_Write_Mot() {}
+static void Log_Write_MotBatt() {}
 static void Log_Write_Data(uint8_t id, int16_t value){}
 static void Log_Write_Data(uint8_t id, uint16_t value){}
 static void Log_Write_Data(uint8_t id, int32_t value){}
