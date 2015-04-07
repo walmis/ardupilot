@@ -964,9 +964,9 @@ static void fast_loop()
 #endif //HELI_FRAME
 
     // send outputs to the motors library
-    dbgset(1);
+    //dbgset(1);
     motors_output();
-    dbgclr(1);
+    //dbgclr(1);
     // Inertial Nav
     // --------------------
     read_inertia();
@@ -1274,7 +1274,9 @@ static void read_AHRS(void)
     // update hil before ahrs update
     gcs_check_input();
 #endif
+    dbgset(1);
     ahrs.update();
+    dbgclr(1);
 }
 
 // read baro and sonar altitude at 10hz
