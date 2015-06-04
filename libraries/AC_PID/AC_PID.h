@@ -10,6 +10,7 @@
 #include <AP_Param.h>
 #include <stdlib.h>
 #include <math.h>
+#include <DataFlash.h>
 
 #define AC_PID_FILT_HZ_DEFAULT  20.0f   // default input filter frequency
 #define AC_PID_FILT_HZ_MIN      0.01f   // minimum input filter frequency
@@ -38,9 +39,9 @@ public:
     // get_pid - get results from pid controller
     float       get_pid();
     float       get_pi();
-    float       get_p() const;
+    float       get_p();
     float       get_i();
-    float       get_d() const;
+    float       get_d();
 
     // reset_I - reset the integrator
     void        reset_I();
@@ -63,25 +64,27 @@ public:
     float       kD() const { return _kd.get(); }
     float       imax() const { return _imax.get(); }
     float       filt_hz() const { return _filt_hz.get(); }
-    float       get_filt_alpha() const { return _filt_alpha; }
+    float       get_filt_alpha() const;
 
     // set accessors
     void        kP(const float v) { _kp.set(v); }
     void        kI(const float v) { _ki.set(v); }
     void        kD(const float v) { _kd.set(v); }
-    void        imax(const float v) { _imax.set(fabs(v)); }
+    void        imax(const float v) { _imax.set(fabsf(v)); }
     void        filt_hz(const float v);
 
     float       get_integrator() const { return _integrator; }
     void        set_integrator(float i) { _integrator = i; }
 
+    // set the designed rate (for logging purposes)
+    void        set_desired_rate(float desired) { _pid_info.desired = desired; }
+
+    const       DataFlash_Class::PID_Info& get_pid_info(void) const { return _pid_info; }
+
     // parameter var table
     static const struct AP_Param::GroupInfo        var_info[];
 
 protected:
-
-    // calc_filt_alpha - recalculate the input filter alpha
-    void        calc_filt_alpha();
 
     // parameters
     AP_Float        _kp;
@@ -96,11 +99,12 @@ protected:
     } _flags;
 
     // internal variables
-    float           _dt;                        // timestep in seconds
-    float           _integrator;                // integrator value
-    float           _input;                // last input for derivative
-    float           _derivative;           // last derivative for low-pass filter
-    float           _filt_alpha;          // input filter alpha
+    float           _dt;                    // timestep in seconds
+    float           _integrator;            // integrator value
+    float           _input;                 // last input for derivative
+    float           _derivative;            // last derivative for low-pass filter
+
+    DataFlash_Class::PID_Info        _pid_info;
 };
 
 #endif // __AC_PID_H__

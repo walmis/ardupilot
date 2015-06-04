@@ -10,7 +10,7 @@ rm -rf $TMPDIR
 echo "Building in $TMPDIR"
 
 date
-git checkout master
+git checkout -f master
 githash=$(git rev-parse HEAD)
 
 hdate=$(date +"%Y-%m/%Y-%m-%d-%H:%m")
@@ -40,12 +40,12 @@ checkout() {
 
     echo "Checkout for $vehicle for $board with tag $tag"
 
-    git checkout "$vtag" || git checkout "$vtag2" || return 1
+    git checkout -f "$vtag" || git checkout -f "$vtag2" || return 1
 
     git log -1
 
     pushd ../../PX4NuttX
-    git checkout "$vtag" || git checkout "$vtag2" || git checkout master || {
+    git checkout -f "$vtag" || git checkout -f "$vtag2" || git checkout -f master || {
         popd
         return 1
     }
@@ -53,7 +53,7 @@ checkout() {
     popd
 
     pushd ../../PX4Firmware
-    git checkout "$vtag" || git checkout "$vtag2" || git checkout master || {
+    git checkout -f "$vtag" || git checkout -f "$vtag2" || git checkout -f master || {
         popd
         return 1
     }
@@ -89,7 +89,8 @@ addfwversion() {
     destdir="$1"
     git log -1 > "$destdir/git-version.txt"
     [ -f APM_Config.h ] && {
-	version=$(grep 'define.THISFIRMWARE' *.pde 2> /dev/null | cut -d'"' -f2)
+        shopt -s nullglob
+	version=$(grep 'define.THISFIRMWARE' *.pde *.h 2> /dev/null | cut -d'"' -f2)
 	echo >> "$destdir/git-version.txt"
 	echo "APMVERSION: $version" >> "$destdir/git-version.txt"
     }    
@@ -119,7 +120,7 @@ build_arduplane() {
     tag="$1"
     echo "Building ArduPlane $tag binaries from $(pwd)"
     pushd ArduPlane
-    for b in apm1 apm2 apm1-hilsensors apm2-hilsensors; do
+    for b in apm1 apm2; do
         checkout ArduPlane $tag $b || {
             echo "Failed checkout of ArduPlane $b $tag"
             error_count=$((error_count+1))
@@ -148,7 +149,6 @@ build_arduplane() {
             return
         }
 	skip_build $tag $ddir || {
-	    make px4-clean &&
 	    make px4 || {
                 echo "Failed build of ArduPlane PX4 $tag"
                 error_count=$((error_count+1))
@@ -184,12 +184,11 @@ build_arducopter() {
             popd
             return
         }
-	make px4-clean || return
-	for f in $frames quad-hil heli-hil; do
+        rm -rf ../Build.ArduCopter
+	for f in $frames; do
 	    echo "Building ArduCopter PX4-$f binaries"
 	    ddir="$binaries/Copter/$hdate/PX4-$f"
 	    skip_build $tag $ddir && continue
-            rm -rf ../Build.ArduCopter
 	    make px4-$f || {
                 echo "Failed build of ArduCopter PX4 $tag"
                 error_count=$((error_count+1))
@@ -231,7 +230,6 @@ build_rover() {
             return
         }
 	skip_build $tag $ddir || {
-	    make px4-clean &&
 	    make px4 || {
                 echo "Failed build of APMrover2 PX4 $tag"
                 error_count=$((error_count+1))
@@ -275,7 +273,6 @@ build_antennatracker() {
             return
         }
 	skip_build $tag $ddir || {
-	    make px4-clean &&
 	    make px4 || {
                 echo "Failed build of AntennaTracker PX4 $tag"
                 error_count=$((error_count+1))
@@ -290,6 +287,11 @@ build_antennatracker() {
     checkout AntennaTracker "latest" ""
     popd
 }
+
+# make sure PX4 is rebuilt from scratch
+pushd ArduPlane
+make px4-clean || exit 1
+popd
 
 for build in stable beta latest; do
     build_arduplane $build

@@ -254,7 +254,7 @@ bool AP_InertialSensor_MPU6000::_init_sensor(void)
     hal.scheduler->resume_timer_procs();
     
     // start the timer process to read samples
-    hal.scheduler->register_timer_process(AP_HAL_MEMBERPROC(&AP_InertialSensor_MPU6000::_poll_data));
+    hal.scheduler->register_timer_process(FUNCTOR_BIND_MEMBER(&AP_InertialSensor_MPU6000::_poll_data, void));
 
 #if MPU6000_DEBUG
     _dump_registers();
@@ -296,10 +296,15 @@ bool AP_InertialSensor_MPU6000::update( void )
     hal.scheduler->resume_timer_procs();
 
     gyro *= _gyro_scale / num_samples;
-    _publish_gyro(_gyro_instance, gyro);
-
     accel *= MPU6000_ACCEL_SCALE_1G / num_samples;
+
+#if CONFIG_HAL_BOARD_SUBTYPE == HAL_BOARD_SUBTYPE_LINUX_PXF
+    accel.rotate(ROTATION_PITCH_180_YAW_90);
+    gyro.rotate(ROTATION_PITCH_180_YAW_90);
+#endif
+
     _publish_accel(_accel_instance, accel);
+    _publish_gyro(_gyro_instance, gyro);
 
 #if MPU6000_FAST_SAMPLING
     if (_last_accel_filter_hz != _accel_filter_cutoff()) {
@@ -445,7 +450,7 @@ void AP_InertialSensor_MPU6000::_register_write_check(uint8_t reg, uint8_t val)
     _register_write(reg, val);
     readed = _register_read(reg);
     if (readed != val){
-	hal.console->printf_P(PSTR("Values doesn't match; written: %02x; read: %02x "), val, readed);
+        hal.console->printf_P(PSTR("Values doesn't match; written: %02x; read: %02x "), val, readed);
     }
 #if MPU6000_DEBUG
     hal.console->printf_P(PSTR("Values written: %02x; readed: %02x "), val, readed);

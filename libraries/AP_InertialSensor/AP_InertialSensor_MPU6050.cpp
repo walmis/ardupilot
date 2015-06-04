@@ -232,7 +232,7 @@ uint16_t AP_InertialSensor_MPU6050::_init_sensor( )
     hal.scheduler->resume_timer_procs();
 
     // start the timer process to read samples
-    hal.scheduler->register_timer_process(AP_HAL_MEMBERPROC(&AP_InertialSensor_MPU6050::_poll_data));
+    hal.scheduler->register_timer_process(FUNCTOR_BIND_MEMBER(&AP_InertialSensor_MPU6050::_poll_data, void));
 
 #if MPU6000_DEBUG
     _dump_registers();
@@ -290,15 +290,7 @@ void AP_InertialSensor_MPU6050::_onFifoData() {
 
 void AP_InertialSensor_MPU6050::_onSampleData() {
 
-    _accel_filtered = _accel_filter.apply(Vector3f(int16_val(_data, 1),
-                                                   int16_val(_data, 0),
-                                                   -int16_val(_data, 2)));
 
-    _gyro_filtered = _gyro_filter.apply(Vector3f(int16_val(_data, 5),
-                                                 int16_val(_data, 4),
-                                                 -int16_val(_data, 6)));
-
-    _num_samples++;
 }
 
 /**
@@ -313,10 +305,28 @@ void AP_InertialSensor_MPU6050::_poll_data(void)
 	}
 #endif
 
-	if(!_i2c->readNonblocking(_addr, MPUREG_ACCEL_XOUT_H, 14, _data,
-			AP_HAL_MEMBERPROC(&AP_InertialSensor_MPU6050::_onSampleData))) {
+//	if(!_i2c->readNonblocking(_addr, MPUREG_ACCEL_XOUT_H, 14, _data,
+//			FUNCTOR_BIND_MEMBER(&AP_InertialSensor_MPU6050::_onSampleData, void))) {
+//	}
+
+	if(!_i2c_sem->take(1)) {
+		return;
 	}
 
+	if(_i2c->readRegisters(_addr, MPUREG_ACCEL_XOUT_H, 14, _data)) {
+
+		_accel_filtered = _accel_filter.apply(Vector3f(int16_val(_data, 1),
+	                                                   int16_val(_data, 0),
+	                                                   -int16_val(_data, 2)));
+
+	    _gyro_filtered = _gyro_filter.apply(Vector3f(int16_val(_data, 5),
+	                                                 int16_val(_data, 4),
+	                                                 -int16_val(_data, 6)));
+
+	    _num_samples++;
+	}
+
+	_i2c_sem->give();
 }
 
 uint8_t AP_InertialSensor_MPU6050::_register_read( uint8_t reg )

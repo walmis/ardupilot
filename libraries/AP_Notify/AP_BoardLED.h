@@ -55,7 +55,7 @@
  # define HAL_GPIO_C_LED_PIN        16
  # define HAL_GPIO_LED_ON           LOW
  # define HAL_GPIO_LED_OFF          HIGH
-#elif CONFIG_HAL_BOARD == HAL_BOARD_LINUX || CONFIG_HAL_BOARD == HAL_BOARD_AVR_SITL
+#elif CONFIG_HAL_BOARD == HAL_BOARD_LINUX || CONFIG_HAL_BOARD == HAL_BOARD_SITL
  # define HAL_GPIO_A_LED_PIN        61
  # define HAL_GPIO_B_LED_PIN        48
  # define HAL_GPIO_C_LED_PIN        117
@@ -67,10 +67,10 @@
  # define HAL_GPIO_C_LED_PIN        27
  # define HAL_GPIO_LED_ON           HIGH
  # define HAL_GPIO_LED_OFF          LOW
-#elif CONFIG_HAL_BOARD == HAL_BOARD_XPCC
- # define HAL_GPIO_A_LED_PIN        ((1<<5) | 1)
- # define HAL_GPIO_B_LED_PIN        ((1<<5) | 4)
- # define HAL_GPIO_C_LED_PIN        ((1<<5) | 0)
+#elif CONFIG_HAL_BOARD == HAL_BOARD_SKYFALCON
+ # define HAL_GPIO_A_LED_PIN        0xFD
+ # define HAL_GPIO_B_LED_PIN        0xFE
+ # define HAL_GPIO_C_LED_PIN        0xFF
  # define HAL_GPIO_LED_ON           HIGH
  # define HAL_GPIO_LED_OFF          LOW
 #else

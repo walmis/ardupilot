@@ -6,8 +6,9 @@
 #include "../AP_Math/AP_Math.h"
 
 #include "Compass.h"
+#include "AP_Compass_Backend.h"
 
-class AP_Compass_FXOS8700 : public Compass
+class AP_Compass_FXOS8700 : public AP_Compass_Backend
 {
 private:
     bool                _initialised;
@@ -27,14 +28,17 @@ private:
     int16_t             _mag_z_accum;
     uint8_t			    _accum_count;
     uint32_t            _last_accum_time;
+    uint8_t             _compass_instance;
 
     uint8_t				_sample_buffer[6];
 public:
-    AP_Compass_FXOS8700() : Compass() {
-    }
+    AP_Compass_FXOS8700(Compass &compass) : AP_Compass_Backend(compass) {}
+
     bool        init(void);
-    bool        read(void);
+    void        read(void);
     void        accumulate(void);
+
+    static AP_Compass_Backend *detect(Compass &compass);
 
 };
 

@@ -19,7 +19,6 @@
 
 #include "RangeFinder.h"
 #include "RangeFinder_Backend.h"
-#include <functional>
 
 class AP_RangeFinder_HC04 : public AP_RangeFinder_Backend
 {

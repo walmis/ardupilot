@@ -2,27 +2,12 @@
 
 #include "AC_AttitudeControl.h"
 #include <AP_HAL.h>
+#include <AP_Math.h>
 
 // table of user settable parameters
 const AP_Param::GroupInfo AC_AttitudeControl::var_info[] PROGMEM = {
 
-    // @Param: RATE_RP_MAX
-    // @DisplayName: Angle Rate Roll-Pitch max
-    // @Description: maximum rotation rate in roll/pitch axis requested by angle controller used in stabilize, loiter, rtl, auto flight modes
-    // @Units: Centi-Degrees/Sec
-    // @Range: 9000 36000
-    // @Increment: 500
-    // @User: Advanced
-    AP_GROUPINFO("RATE_RP_MAX", 0, AC_AttitudeControl, _angle_rate_rp_max, AC_ATTITUDE_CONTROL_RATE_RP_MAX_DEFAULT),
-
-    // @Param: RATE_Y_MAX
-    // @DisplayName: Angle Rate Yaw max
-    // @Description: maximum rotation rate in roll/pitch axis requested by angle controller used in stabilize, loiter, rtl, auto flight modes
-    // @Units: Centi-Degrees/Sec
-    // @Range: 4500 18000
-    // @Increment: 500
-    // @User: Advanced
-    AP_GROUPINFO("RATE_Y_MAX",  1, AC_AttitudeControl, _angle_rate_y_max, AC_ATTITUDE_CONTROL_RATE_Y_MAX_DEFAULT),
+    // 0, 1 were RATE_RP_MAX, RATE_Y_MAX
 
     // @Param: SLEW_YAW
     // @DisplayName: Yaw target slew rate
@@ -449,7 +434,7 @@ void AC_AttitudeControl::frame_conversion_ef_to_bf(const Vector3f& ef_vector, Ve
 bool AC_AttitudeControl::frame_conversion_bf_to_ef(const Vector3f& bf_vector, Vector3f& ef_vector)
 {
     // avoid divide by zero
-    if (_ahrs.cos_pitch() == 0.0f) {
+    if (is_zero(_ahrs.cos_pitch())) {
         return false;
     }
     // convert earth frame angle or rates to body frame
@@ -535,7 +520,7 @@ void AC_AttitudeControl::integrate_bf_rate_error_to_angle_errors()
     // yaw - limit maximum error
     _angle_bf_error.z = constrain_float(_angle_bf_error.z, -AC_ATTITUDE_RATE_STAB_ACRO_OVERSHOOT_ANGLE_MAX, AC_ATTITUDE_RATE_STAB_ACRO_OVERSHOOT_ANGLE_MAX);
 
-    // To-Do: handle case of motors being disarmed or g.rc_3.servo_out == 0 and set error to zero
+    // To-Do: handle case of motors being disarmed or channel_throttle == 0 and set error to zero
 }
 
 // update_rate_bf_targets - converts body-frame angle error to body-frame rate targets for roll, pitch and yaw axis
@@ -543,27 +528,32 @@ void AC_AttitudeControl::integrate_bf_rate_error_to_angle_errors()
 //   results in centi-degrees/sec put into _rate_bf_target
 void AC_AttitudeControl::update_rate_bf_targets()
 {
+
     // stab roll calculation
-    _rate_bf_target.x = _p_angle_roll.kP() * _angle_bf_error.x;
     // constrain roll rate request
     if (_flags.limit_angle_to_rate_request) {
-        _rate_bf_target.x = constrain_float(_rate_bf_target.x,-_angle_rate_rp_max,_angle_rate_rp_max);
+        _rate_bf_target.x = sqrt_controller(_angle_bf_error.x, _p_angle_roll.kP(), constrain_float(_accel_roll_max/2.0f,  AC_ATTITUDE_ACCEL_RP_CONTROLLER_MIN, AC_ATTITUDE_ACCEL_RP_CONTROLLER_MAX));
+    }else{
+        _rate_bf_target.x = _p_angle_roll.kP() * _angle_bf_error.x;
     }
 
     // stab pitch calculation
-    _rate_bf_target.y = _p_angle_pitch.kP() * _angle_bf_error.y;
     // constrain pitch rate request
     if (_flags.limit_angle_to_rate_request) {
-        _rate_bf_target.y = constrain_float(_rate_bf_target.y,-_angle_rate_rp_max,_angle_rate_rp_max);
+        _rate_bf_target.y = sqrt_controller(_angle_bf_error.y, _p_angle_pitch.kP(), constrain_float(_accel_pitch_max/2.0f,  AC_ATTITUDE_ACCEL_RP_CONTROLLER_MIN, AC_ATTITUDE_ACCEL_RP_CONTROLLER_MAX));
+    }else{
+        _rate_bf_target.y = _p_angle_pitch.kP() * _angle_bf_error.y;
     }
 
     // stab yaw calculation
-    _rate_bf_target.z = _p_angle_yaw.kP() * _angle_bf_error.z;
     // constrain yaw rate request
     if (_flags.limit_angle_to_rate_request) {
-        _rate_bf_target.z = constrain_float(_rate_bf_target.z,-_angle_rate_y_max,_angle_rate_y_max);
+        _rate_bf_target.z = sqrt_controller(_angle_bf_error.z, _p_angle_yaw.kP(), constrain_float(_accel_yaw_max/2.0f,  AC_ATTITUDE_ACCEL_Y_CONTROLLER_MIN, AC_ATTITUDE_ACCEL_Y_CONTROLLER_MAX));
+    }else{
+        _rate_bf_target.z = _p_angle_yaw.kP() * _angle_bf_error.z;
     }
 
+    // include roll and pitch rate required to account for precession of the desired attitude about the body frame yaw axes
 	_rate_bf_target.x += _angle_bf_error.y * _ahrs.get_gyro().z;
 	_rate_bf_target.y += -_angle_bf_error.x * _ahrs.get_gyro().z;
 }
@@ -586,6 +576,7 @@ float AC_AttitudeControl::rate_bf_to_motor_roll(float rate_target_cds)
     // calculate error and call pid controller
     rate_error = rate_target_cds - current_rate;
     _pid_rate_roll.set_input_filter_d(rate_error);
+    _pid_rate_roll.set_desired_rate(rate_target_cds);
 
     // get p value
     p = _pid_rate_roll.get_p();
@@ -603,8 +594,6 @@ float AC_AttitudeControl::rate_bf_to_motor_roll(float rate_target_cds)
 
     // constrain output and return
     return constrain_float((p+i+d), -AC_ATTITUDE_RATE_RP_CONTROLLER_OUT_MAX, AC_ATTITUDE_RATE_RP_CONTROLLER_OUT_MAX);
-
-    // To-Do: allow logging of PIDs?
 }
 
 // rate_bf_to_motor_pitch - ask the rate controller to calculate the motor outputs to achieve the target rate in centi-degrees / second
@@ -621,6 +610,7 @@ float AC_AttitudeControl::rate_bf_to_motor_pitch(float rate_target_cds)
     // calculate error and call pid controller
     rate_error = rate_target_cds - current_rate;
     _pid_rate_pitch.set_input_filter_d(rate_error);
+    _pid_rate_pitch.set_desired_rate(rate_target_cds);
 
     // get p value
     p = _pid_rate_pitch.get_p();
@@ -638,8 +628,6 @@ float AC_AttitudeControl::rate_bf_to_motor_pitch(float rate_target_cds)
 
     // constrain output and return
     return constrain_float((p+i+d), -AC_ATTITUDE_RATE_RP_CONTROLLER_OUT_MAX, AC_ATTITUDE_RATE_RP_CONTROLLER_OUT_MAX);
-
-    // To-Do: allow logging of PIDs?
 }
 
 // rate_bf_to_motor_yaw - ask the rate controller to calculate the motor outputs to achieve the target rate in centi-degrees / second
@@ -656,6 +644,7 @@ float AC_AttitudeControl::rate_bf_to_motor_yaw(float rate_target_cds)
     // calculate error and call pid controller
     rate_error  = rate_target_cds - current_rate;
     _pid_rate_yaw.set_input_filter_all(rate_error);
+    _pid_rate_yaw.set_desired_rate(rate_target_cds);
 
     // get p value
     p = _pid_rate_yaw.get_p();
@@ -673,8 +662,6 @@ float AC_AttitudeControl::rate_bf_to_motor_yaw(float rate_target_cds)
 
     // constrain output and return
     return constrain_float((p+i+d), -AC_ATTITUDE_RATE_YAW_CONTROLLER_OUT_MAX, AC_ATTITUDE_RATE_YAW_CONTROLLER_OUT_MAX);
-
-    // To-Do: allow logging of PIDs?
 }
 
 // accel_limiting - enable or disable accel limiting
@@ -682,14 +669,14 @@ void AC_AttitudeControl::accel_limiting(bool enable_limits)
 {
     if (enable_limits) {
         // if enabling limits, reload from eeprom or set to defaults
-        if (_accel_roll_max == 0.0f) {
+        if (is_zero(_accel_roll_max)) {
             _accel_roll_max.load();
         }
         // if enabling limits, reload from eeprom or set to defaults
-        if (_accel_pitch_max == 0.0f) {
+        if (is_zero(_accel_pitch_max)) {
             _accel_pitch_max.load();
         }
-        if (_accel_yaw_max == 0.0f) {
+        if (is_zero(_accel_yaw_max)) {
             _accel_yaw_max.load();
         }
     } else {
@@ -706,10 +693,12 @@ void AC_AttitudeControl::accel_limiting(bool enable_limits)
 
  // set_throttle_out - to be called by upper throttle controllers when they wish to provide throttle output directly to motors
  // provide 0 to cut motors
-void AC_AttitudeControl::set_throttle_out(int16_t throttle_out, bool apply_angle_boost)
+void AC_AttitudeControl::set_throttle_out(float throttle_out, bool apply_angle_boost, float filter_cutoff)
 {
+    _motors.set_stabilizing(true);
+    _motors.set_throttle_filter_cutoff(filter_cutoff);
     if (apply_angle_boost) {
-        _motors.set_throttle(get_angle_boost(throttle_out));
+        _motors.set_throttle(get_boosted_throttle(throttle_out));
     }else{
         _motors.set_throttle(throttle_out);
         // clear angle_boost for logging purposes
@@ -717,32 +706,40 @@ void AC_AttitudeControl::set_throttle_out(int16_t throttle_out, bool apply_angle
     }
 }
 
-// get_angle_boost - returns a throttle including compensation for roll/pitch angle
-// throttle value should be 0 ~ 1000
-int16_t AC_AttitudeControl::get_angle_boost(int16_t throttle_pwm)
+// outputs a throttle to all motors evenly with no attitude stabilization
+void AC_AttitudeControl::set_throttle_out_unstabilized(float throttle_in, bool reset_attitude_control, float filter_cutoff)
 {
-    float temp = _ahrs.cos_pitch() * _ahrs.cos_roll();
-    int16_t throttle_out;
+    if (reset_attitude_control) {
+        relax_bf_rate_controller();
+        set_yaw_target_to_current_heading();
+    }
+    _motors.set_throttle_filter_cutoff(filter_cutoff);
+    _motors.set_stabilizing(false);
+    _motors.set_throttle(throttle_in);
+    _angle_boost = 0;
+}
 
-    temp = constrain_float(temp, 0.5f, 1.0f);
+// returns a throttle including compensation for roll/pitch angle
+// throttle value should be 0 ~ 1000
+float AC_AttitudeControl::get_boosted_throttle(float throttle_in)
+{
+    // inverted_factor is 1 for tilt angles below 60 degrees
+    // reduces as a function of angle beyond 60 degrees
+    // becomes zero at 90 degrees
+    float min_throttle = _motors.throttle_min();
+    float cos_tilt = _ahrs.cos_pitch() * _ahrs.cos_roll();
+    float inverted_factor = constrain_float(2.0f*cos_tilt, 0.0f, 1.0f);
+    float boost_factor = 1.0f/constrain_float(cos_tilt, 0.5f, 1.0f);
 
-    // reduce throttle if we go inverted
-    temp = constrain_float(9000-max(labs(_ahrs.roll_sensor),labs(_ahrs.pitch_sensor)), 0, 3000) / (3000 * temp);
-
-    // apply scale and constrain throttle
-    // To-Do: move throttle_min and throttle_max into the AP_Vehicles class?
-    throttle_out = constrain_float((float)(throttle_pwm-_motors.throttle_min()) * temp + _motors.throttle_min(), _motors.throttle_min(), 1000);
-
-    // record angle boost for logging
-    _angle_boost = throttle_out - throttle_pwm;
-
+    float throttle_out = (throttle_in-min_throttle)*inverted_factor*boost_factor + min_throttle;
+    _angle_boost = constrain_float(throttle_out - throttle_in,-32000,32000);
     return throttle_out;
 }
 
 // sqrt_controller - response based on the sqrt of the error instead of the more common linear response
 float AC_AttitudeControl::sqrt_controller(float error, float p, float second_ord_lim)
 {
-    if (second_ord_lim == 0.0f || p == 0.0f) {
+    if (is_zero(second_ord_lim) || is_zero(p)) {
         return error*p;
     }
 

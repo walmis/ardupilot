@@ -30,7 +30,7 @@ void (*AP_RangeFinder_HC04::updateFunction)(RangeFinder::RangeFinder_State &s) =
 AP_RangeFinder_HC04::AP_RangeFinder_HC04(RangeFinder &_ranger, uint8_t instance, RangeFinder::RangeFinder_State &_state) :
 	AP_RangeFinder_Backend(_ranger, instance, _state)
 {
-    state.healthy = false;
+    //state.healthy = false;
 }
 
 AP_RangeFinder_HC04::~AP_RangeFinder_HC04()
@@ -47,7 +47,7 @@ void AP_RangeFinder_HC04::update(void)
 	if(updateFunction) {
 		updateFunction(state);
 	} else {
-		state.healthy = false;
+		//state.healthy = false;
 	}
 }
 

@@ -24,8 +24,8 @@
 
 extern const AP_HAL::HAL& hal;
 
-// MPU6000 accelerometer scaling
-#define MPU9250_ACCEL_SCALE_1G    (GRAVITY_MSS / 4096.0f)
+// MPU9250 accelerometer scaling for 16g range
+#define MPU9250_ACCEL_SCALE_1G    (GRAVITY_MSS / 2048.0f)
 
 #define MPUREG_XG_OFFS_TC                               0x00
 #define MPUREG_YG_OFFS_TC                               0x01
@@ -249,7 +249,7 @@ bool AP_InertialSensor_MPU9250::_init_sensor(void)
     _product_id = AP_PRODUCT_ID_MPU9250;
 
     // start the timer process to read samples
-    hal.scheduler->register_timer_process(AP_HAL_MEMBERPROC(&AP_InertialSensor_MPU9250::_poll_data));
+    hal.scheduler->register_timer_process(FUNCTOR_BIND_MEMBER(&AP_InertialSensor_MPU9250::_poll_data, void));
 
 #if MPU9250_DEBUG
     _dump_registers();
@@ -421,11 +421,6 @@ bool AP_InertialSensor_MPU9250::_hardware_init(void)
     // Chip reset
     uint8_t tries;
     for (tries = 0; tries<5; tries++) {
-#if HAL_COMPASS_DEFAULT != HAL_COMPASS_AK8963 
-        /* Prevent reseting if internal AK8963 is selected, because it may corrupt
-         * AK8963's initialisation.  */
-        _register_write(MPUREG_PWR_MGMT_1, BIT_PWR_MGMT_1_DEVICE_RESET);
-#endif
         hal.scheduler->delay(100);
 
         // Wake up device and select GyroZ clock. Note that the
@@ -450,13 +445,6 @@ bool AP_InertialSensor_MPU9250::_hardware_init(void)
 
     _register_write(MPUREG_PWR_MGMT_2, 0x00);            // only used for wake-up in accelerometer only low power mode
 
-    // Disable I2C bus (recommended on datasheet)
-#if HAL_COMPASS_DEFAULT != HAL_COMPASS_AK8963 
-     /* Prevent disabling if internal AK8963 is selected. If internal AK8963 is not used
-      * it's ok to disable I2C slaves*/
-    _register_write(MPUREG_USER_CTRL, BIT_USER_CTRL_I2C_IF_DIS);
-#endif
-
     // used no filter of 256Hz on the sensor, then filter using
     // the 2-pole software filter
     _register_write(MPUREG_CONFIG, BITS_DLPF_CFG_256HZ_NOLPF2);
@@ -466,8 +454,8 @@ bool AP_InertialSensor_MPU9250::_hardware_init(void)
     _register_write(MPUREG_SMPLRT_DIV, MPUREG_SMPLRT_1000HZ);
     _register_write(MPUREG_GYRO_CONFIG, BITS_GYRO_FS_2000DPS);  // Gyro scale 2000º/s
 
-    // RM-MPU-9250A-00.pdf, pg. 15, select accel full scale 8g
-    _register_write(MPUREG_ACCEL_CONFIG,2<<3);
+    // RM-MPU-9250A-00.pdf, pg. 15, select accel full scale 16g
+    _register_write(MPUREG_ACCEL_CONFIG,3<<3);
 
     // configure interrupt to fire when new data arrives
     _register_write(MPUREG_INT_ENABLE, BIT_RAW_RDY_EN);

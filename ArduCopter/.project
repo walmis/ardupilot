@@ -3,6 +3,7 @@
 	<name>ArduCopter</name>
 	<comment></comment>
 	<projects>
+		<project>APMLib</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

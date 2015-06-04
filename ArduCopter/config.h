@@ -40,23 +40,9 @@
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
-#ifdef CONFIG_APM_HARDWARE
-#error CONFIG_APM_HARDWARE option is deprecated! use CONFIG_HAL_BOARD instead
-#endif
-
 #ifndef CONFIG_HAL_BOARD
 #error CONFIG_HAL_BOARD must be defined to build ArduCopter
 #endif
-
-#ifdef __AVR_ATmega1280__
-#error ATmega1280 is not supported
-#endif
-
-//////////////////////////////////////////////////////////////////////////////
-// sensor types
-
-#define CONFIG_BARO     HAL_BARO_DEFAULT
-#define CONFIG_COMPASS  HAL_COMPASS_DEFAULT
 
 //////////////////////////////////////////////////////////////////////////////
 // HIL_MODE                                 OPTIONAL
@@ -74,37 +60,15 @@
 
 #define MAGNETOMETER ENABLED
 
-// disable some features for APM1/APM2
+// low power cpus are not supported
 #if HAL_CPU_CLASS < HAL_CPU_CLASS_75
- # define PARACHUTE DISABLED
- # define AC_RALLY DISABLED
- # define EPM_ENABLED DISABLED
- # define CLI_ENABLED           DISABLED
- # define FRSKY_TELEM_ENABLED   DISABLED
- # define NAV_GUIDED            DISABLED
+ # error ArduCopter ver3.3 and higher is not supported on APM1, APM2 boards
 #endif
 
-#if CONFIG_HAL_BOARD == HAL_BOARD_XPCC
-#if !EKF_BUILD
- # define MAIN_LOOP_RATE    500
- # define MAIN_LOOP_SECONDS 0.002
- # define MAIN_LOOP_MICROS  2000
-#else
- # define MAIN_LOOP_RATE    100
- # define MAIN_LOOP_SECONDS 0.01
- # define MAIN_LOOP_MICROS  10000
-#endif
-#elif HAL_CPU_CLASS < HAL_CPU_CLASS_75 || CONFIG_HAL_BOARD == HAL_BOARD_AVR_SITL || CONFIG_HAL_BOARD == HAL_BOARD_LINUX
- // low power CPUs (APM1, APM2 and SITL)
- # define MAIN_LOOP_RATE    100
- # define MAIN_LOOP_SECONDS 0.01
- # define MAIN_LOOP_MICROS  10000
-#else
- // high power CPUs (Flymaple, PX4, Pixhawk, VRBrain)
- # define MAIN_LOOP_RATE    400
- # define MAIN_LOOP_SECONDS 0.0025
- # define MAIN_LOOP_MICROS  2500
-#endif
+// run at 400Hz on all systems
+# define MAIN_LOOP_RATE    400
+# define MAIN_LOOP_SECONDS 0.0025f
+# define MAIN_LOOP_MICROS  2500
 
 //////////////////////////////////////////////////////////////////////////////
 // FRAME_CONFIG
@@ -140,9 +104,24 @@
 #if FRAME_CONFIG == HELI_FRAME
   # define RC_FAST_SPEED                        125
   # define WP_YAW_BEHAVIOR_DEFAULT              WP_YAW_BEHAVIOR_LOOK_AHEAD
-  # define RATE_ROLL_D                          0
-  # define RATE_PITCH_D                         0
-  # define MPU6K_FILTER                         10
+  # define RATE_ROLL_P                          0.02
+  # define RATE_ROLL_I                          0.5
+  # define RATE_ROLL_D                          0.001
+  # define RATE_ROLL_IMAX                       4500
+  # define RATE_ROLL_FF                         0.05
+  # define RATE_ROLL_FILT_HZ                    20.0f
+  # define RATE_PITCH_P                         0.02
+  # define RATE_PITCH_I                         0.5
+  # define RATE_PITCH_D                         0.001
+  # define RATE_PITCH_IMAX                      4500
+  # define RATE_PITCH_FF                        0.05
+  # define RATE_PITCH_FILT_HZ                   20.0f
+  # define RATE_YAW_P                           0.15
+  # define RATE_YAW_I                           0.100
+  # define RATE_YAW_D                           0.003
+  # define RATE_YAW_IMAX                        4500
+  # define RATE_YAW_FF                          0.02
+  # define RATE_YAW_FILT_HZ                     20.0f
   # define HELI_STAB_COLLECTIVE_MIN_DEFAULT     0
   # define HELI_STAB_COLLECTIVE_MAX_DEFAULT     1000
   # define THR_MIN_DEFAULT                      0
@@ -161,35 +140,10 @@
 #endif
 
 //////////////////////////////////////////////////////////////////////////////
-// ADC Enable - used to eliminate for systems which don't have ADC.
-//
-#ifndef CONFIG_ADC
- # if CONFIG_HAL_BOARD == HAL_BOARD_APM1
-  #   define CONFIG_ADC ENABLED
- # else
-  #   define CONFIG_ADC DISABLED
- # endif
-#endif
-
-//////////////////////////////////////////////////////////////////////////////
 // PWM control
 // default RC speed in Hz
 #ifndef RC_FAST_SPEED
    #   define RC_FAST_SPEED 490
-#endif
-
-////////////////////////////////////////////////////////
-// LED and IO Pins
-//
-#if CONFIG_HAL_BOARD == HAL_BOARD_APM1
-#elif CONFIG_HAL_BOARD == HAL_BOARD_APM2
-#elif CONFIG_HAL_BOARD == HAL_BOARD_AVR_SITL
-#elif CONFIG_HAL_BOARD == HAL_BOARD_PX4
-#elif CONFIG_HAL_BOARD == HAL_BOARD_FLYMAPLE
-#elif CONFIG_HAL_BOARD == HAL_BOARD_LINUX
- # define LED_ON           LOW
- # define LED_OFF          HIGH
-#elif CONFIG_HAL_BOARD == HAL_BOARD_VRBRAIN
 #endif
 
 //////////////////////////////////////////////////////////////////////////////
@@ -217,7 +171,7 @@
 #endif
 
 #ifndef SONAR_GAIN_DEFAULT
- # define SONAR_GAIN_DEFAULT 0.8            // gain for controlling how quickly sonar range adjusts target altitude (lower means slower reaction)
+ # define SONAR_GAIN_DEFAULT 0.8f           // gain for controlling how quickly sonar range adjusts target altitude (lower means slower reaction)
 #endif
 
 #ifndef THR_SURFACE_TRACKING_VELZ_MAX
@@ -230,18 +184,6 @@
 
 #ifndef SONAR_TILT_CORRECTION               // by disable tilt correction for use of range finder data by EKF
  # define SONAR_TILT_CORRECTION DISABLED
-#endif
-
-//////////////////////////////////////////////////////////////////////////////
-// Channel 7 and 8 default options
-//
-
-#ifndef CH7_OPTION
- # define CH7_OPTION            AUX_SWITCH_DO_NOTHING
-#endif
-
-#ifndef CH8_OPTION
- # define CH8_OPTION            AUX_SWITCH_DO_NOTHING
 #endif
 
 //////////////////////////////////////////////////////////////////////////////
@@ -283,10 +225,7 @@
  # define BOARD_VOLTAGE_MAX             5.8f        // max board voltage in volts for pre-arm checks
 #endif
 
-// GPS failsafe
-#ifndef FAILSAFE_GPS_TIMEOUT_MS
- # define FAILSAFE_GPS_TIMEOUT_MS       5000    // gps failsafe triggers after 5 seconds with no GPS
-#endif
+// prearm GPS hdop check
 #ifndef GPS_HDOP_GOOD_DEFAULT
  # define GPS_HDOP_GOOD_DEFAULT         230     // minimum hdop that represents a good position.  used during pre-arm checks if fence is enabled
 #endif
@@ -301,7 +240,7 @@
 
 // Radio failsafe while using RC_override
 #ifndef FS_RADIO_RC_OVERRIDE_TIMEOUT_MS
- # define FS_RADIO_RC_OVERRIDE_TIMEOUT_MS  2000    // RC Radio failsafe triggers after 2 seconds while using RC_override from ground station
+ # define FS_RADIO_RC_OVERRIDE_TIMEOUT_MS  1000    // RC Radio failsafe triggers after 1 second while using RC_override from ground station
 #endif
 
 // Radio failsafe
@@ -319,11 +258,6 @@
  # define PREARM_MAX_ALT_DISPARITY_CM       100     // barometer and inertial nav altitude must be within this many centimeters
 #endif
 
-// pre-arm check max velocity
-#ifndef PREARM_MAX_VELOCITY_CMS
- # define PREARM_MAX_VELOCITY_CMS           50.0f   // vehicle must be travelling under 50cm/s before arming
-#endif
-
 // arming check's maximum acceptable accelerometer vector difference (in m/s/s) between primary and backup accelerometers
 #ifndef PREARM_MAX_ACCEL_VECTOR_DIFF
   #define PREARM_MAX_ACCEL_VECTOR_DIFF      0.70f    // pre arm accel check will fail if primary and backup accelerometer vectors differ by 0.7m/s/s
@@ -335,12 +269,9 @@
 #endif
 
 //////////////////////////////////////////////////////////////////////////////
-//  EKF & DCM Checker
+//  EKF Checker
 #ifndef EKFCHECK_THRESHOLD_DEFAULT
  # define EKFCHECK_THRESHOLD_DEFAULT    0.8f    // EKF checker's default compass and velocity variance above which the EKF's horizontal position will be considered bad
-#endif
-#ifndef DCMCHECK_THRESHOLD_DEFAULT
- # define DCMCHECK_THRESHOLD_DEFAULT    0.8f    // DCM checker's default yaw error threshold above which we will abandon horizontal position hold.  The units are sin(angle) so 0.8 = about 60degrees of error
 #endif
 
 #ifndef EKF_ORIGIN_MAX_DIST_M
@@ -354,14 +285,8 @@
 #endif
 
 // expected magnetic field strength.  pre-arm checks will fail if 50% higher or lower than this value
-#if CONFIG_HAL_BOARD == HAL_BOARD_APM1 || CONFIG_HAL_BOARD == HAL_BOARD_APM2
- #ifndef COMPASS_MAGFIELD_EXPECTED
-  # define COMPASS_MAGFIELD_EXPECTED     330        // pre arm will fail if mag field > 544 or < 115
- #endif
-#else // PX4, SITL
- #ifndef COMPASS_MAGFIELD_EXPECTED
-  #define COMPASS_MAGFIELD_EXPECTED      530        // pre arm will fail if mag field > 874 or < 185
- #endif
+#ifndef COMPASS_MAGFIELD_EXPECTED
+ #define COMPASS_MAGFIELD_EXPECTED      530        // pre arm will fail if mag field > 874 or < 185
 #endif
 
 // max compass offset length (i.e. sqrt(offs_x^2+offs_y^2+offs_Z^2))
@@ -369,7 +294,7 @@
  #ifndef COMPASS_OFFSETS_MAX
   # define COMPASS_OFFSETS_MAX          600         // PX4 onboard compass has high offsets
  #endif
-#else   // APM1, APM2, SITL, FLYMAPLE, etc
+#else   // SITL, FLYMAPLE, etc
  #ifndef COMPASS_OFFSETS_MAX
   # define COMPASS_OFFSETS_MAX          500
  #endif
@@ -377,7 +302,7 @@
 
 // arming check's maximum acceptable vector difference between internal and external compass after vectors are normalized to field length of 1.0
 #ifndef COMPASS_ACCEPTABLE_VECTOR_DIFF
-  #define COMPASS_ACCEPTABLE_VECTOR_DIFF    0.75    // pre arm compass check will fail if internal vs external compass direction differ by more than 45 degrees
+  #define COMPASS_ACCEPTABLE_VECTOR_DIFF    0.75f    // pre arm compass check will fail if internal vs external compass direction differ by more than 45 degrees
  #endif
 
 //////////////////////////////////////////////////////////////////////////////
@@ -457,17 +382,31 @@
  # define FS_THR_VALUE_DEFAULT             975
 #endif
 
+//////////////////////////////////////////////////////////////////////////////
+// Takeoff
+//
+#ifndef PILOT_TKOFF_ALT_DEFAULT
+ # define PILOT_TKOFF_ALT_DEFAULT           0     // default final alt above home for pilot initiated takeoff
+#endif
+
+
+//////////////////////////////////////////////////////////////////////////////
+// Landing
+//
 #ifndef LAND_SPEED
  # define LAND_SPEED    50          // the descent speed for the final stage of landing in cm/s
 #endif
 #ifndef LAND_START_ALT
  # define LAND_START_ALT 1000         // altitude in cm where land controller switches to slow rate of descent
 #endif
-#ifndef LAND_DETECTOR_TRIGGER
- # define LAND_DETECTOR_TRIGGER 50    // number of 50hz iterations with near zero climb rate and low throttle that triggers landing complete.
+#ifndef LAND_DETECTOR_TRIGGER_SEC
+ # define LAND_DETECTOR_TRIGGER_SEC 1.0f // number of seconds to detect a landing
 #endif
-#ifndef LAND_DETECTOR_MAYBE_TRIGGER
- # define LAND_DETECTOR_MAYBE_TRIGGER   10  // number of 50hz iterations with near zero climb rate and low throttle that means we might be landed (used to reset horizontal position targets to prevent tipping over)
+#ifndef LAND_DETECTOR_MAYBE_TRIGGER_SEC
+ # define LAND_DETECTOR_MAYBE_TRIGGER_SEC   0.2f  // number of 50hz iterations with near zero climb rate and low throttle that means we might be landed (used to reset horizontal position targets to prevent tipping over)
+#endif
+#ifndef LAND_DETECTOR_ACCEL_LPF_CUTOFF
+# define LAND_DETECTOR_ACCEL_LPF_CUTOFF 1.0f // frequency cutoff of land detector accelerometer filter
 #endif
 #ifndef LAND_DETECTOR_CLIMBRATE_MAX
 # define LAND_DETECTOR_CLIMBRATE_MAX    30  // vehicle climb rate must be between -30 and +30 cm/s
@@ -554,6 +493,10 @@
  # define RTL_ALT 				    1500    // default alt to return to home in cm, 0 = Maintain current altitude
 #endif
 
+#ifndef RTL_ALT_MIN
+ # define RTL_ALT_MIN               200     // min height above ground for RTL (i.e 2m)
+#endif
+
 #ifndef RTL_LOITER_TIME
  # define RTL_LOITER_TIME           5000    // Time (in milliseconds) to loiter above home before begining final descent
 #endif
@@ -603,7 +546,7 @@
  # define RATE_ROLL_D        		0.004f
 #endif
 #ifndef RATE_ROLL_IMAX
- # define RATE_ROLL_IMAX         	1000
+ # define RATE_ROLL_IMAX         	2000
 #endif
 #ifndef RATE_ROLL_FILT_HZ
  # define RATE_ROLL_FILT_HZ         20.0f
@@ -619,7 +562,7 @@
  # define RATE_PITCH_D       		0.004f
 #endif
 #ifndef RATE_PITCH_IMAX
- # define RATE_PITCH_IMAX        	1000
+ # define RATE_PITCH_IMAX        	2000
 #endif
 #ifndef RATE_PITCH_FILT_HZ
  # define RATE_PITCH_FILT_HZ        20.0f
@@ -647,6 +590,13 @@
 //
 #ifndef POS_XY_P
  # define POS_XY_P             	1.0f
+#endif
+
+//////////////////////////////////////////////////////////////////////////////
+// Stop mode defaults
+//
+#ifndef BRAKE_MODE_DECEL_RATE
+ # define BRAKE_MODE_DECEL_RATE  750 // acceleration rate in cm/s/s in Brake Mode
 #endif
 
 //////////////////////////////////////////////////////////////////////////////
@@ -688,9 +638,7 @@
 #ifndef THR_MIN_DEFAULT
  # define THR_MIN_DEFAULT       130             // minimum throttle sent to the motors when armed and pilot throttle above zero
 #endif
-#ifndef THR_MAX_DEFAULT
- # define THR_MAX_DEFAULT       1000            // maximum throttle sent to the motors
-#endif
+#define THR_MAX                 1000            // maximum throttle input and output sent to the motors
 
 #ifndef THR_DZ_DEFAULT
 # define THR_DZ_DEFAULT         100             // the deadzone above and below mid throttle while in althold or loiter
@@ -746,19 +694,8 @@
  # define LOGGING_ENABLED                ENABLED
 #endif
 
-#if CONFIG_HAL_BOARD == HAL_BOARD_APM1 || CONFIG_HAL_BOARD == HAL_BOARD_APM2 || CONFIG_HAL_BOARD == HAL_BOARD_AVR_SITL
- // APM1 & APM2 default logging
- # define DEFAULT_LOG_BITMASK \
-    MASK_LOG_ATTITUDE_MED | \
-    MASK_LOG_GPS | \
-    MASK_LOG_PM | \
-    MASK_LOG_CTUN | \
-    MASK_LOG_NTUN | \
-    MASK_LOG_RCIN | \
-    MASK_LOG_CMD | \
-    MASK_LOG_CURRENT
-#else
- // PX4, Pixhawk, FlyMaple default logging
+// Default logging bitmask
+#ifndef DEFAULT_LOG_BITMASK
  # define DEFAULT_LOG_BITMASK \
     MASK_LOG_ATTITUDE_MED | \
     MASK_LOG_GPS | \
@@ -773,8 +710,7 @@
     MASK_LOG_OPTFLOW | \
     MASK_LOG_COMPASS | \
     MASK_LOG_CAMERA | \
-    MASK_LOG_RATE | \
-    MASK_LOG_MOT
+    MASK_LOG_MOTBATT
 #endif
 
 //////////////////////////////////////////////////////////////////////////////
