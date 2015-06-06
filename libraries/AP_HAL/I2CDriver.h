@@ -33,7 +33,7 @@ public:
      * register, then reads back multiple bytes */
     virtual uint8_t readRegisters(uint8_t addr, uint8_t reg,
                                   uint8_t len, uint8_t* data) = 0;
-#if CONFIG_HAL_BOARD == HAL_BOARD_XPCC
+#if CONFIG_HAL_BOARD == HAL_BOARD_SKYFALCON
     virtual I2CHandle* readNonblocking(uint8_t addr, uint8_t reg,
                                   uint8_t len, uint8_t* data,
 								  AP_HAL::MemberProc callback) = 0;

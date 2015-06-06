@@ -177,7 +177,7 @@
 							<tool commandLinePattern="${COMMAND} ${FLAGS} -MT ${OUTPUT_PREFIX}${OUTPUT}  ${OUTPUT_FLAG} ${OUTPUT_PREFIX}${OUTPUT} ${INPUTS}" id="cdt.managedbuild.tool.gnu.cross.c.compiler.457854809" name="Cross GCC Compiler" superClass="cdt.managedbuild.tool.gnu.cross.c.compiler">
 								<option defaultValue="gnu.c.optimization.level.most" id="gnu.c.compiler.option.optimization.level.1240769621" name="Optimization Level" superClass="gnu.c.compiler.option.optimization.level" useByScannerDiscovery="false" value="gnu.c.optimization.level.size" valueType="enumerated"/>
 								<option id="gnu.c.compiler.option.debugging.level.1617512753" name="Debug Level" superClass="gnu.c.compiler.option.debugging.level" useByScannerDiscovery="false" value="gnu.c.debugging.level.default" valueType="enumerated"/>
-								<option id="gnu.c.compiler.option.misc.other.2026452645" name="Other flags" superClass="gnu.c.compiler.option.misc.other" useByScannerDiscovery="false" value="-c -fmessage-length=0 -mcpu=cortex-m3 -mthumb -Wno-unused-parameter" valueType="string"/>
+								<option id="gnu.c.compiler.option.misc.other.2026452645" name="Other flags" superClass="gnu.c.compiler.option.misc.other" useByScannerDiscovery="false" value="-c -fmessage-length=0 -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -mthumb -Wno-unused-parameter" valueType="string"/>
 								<option id="gnu.c.compiler.option.include.paths.732439858" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/RadioHead}&quot;"/>
 								</option>
@@ -186,6 +186,7 @@
 									<listOptionValue builtIn="false" value="APM_BUILD_DIRECTORY=APM_BUILD_ArduCopter"/>
 								</option>
 								<option id="gnu.c.compiler.option.dialect.std.1387113514" name="Language standard" superClass="gnu.c.compiler.option.dialect.std" useByScannerDiscovery="true" value="gnu.c.compiler.dialect.default" valueType="enumerated"/>
+								<option id="gnu.c.compiler.option.optimization.flags.1385385160" name="Other optimization flags" superClass="gnu.c.compiler.option.optimization.flags" useByScannerDiscovery="false" value="-ffunction-sections -fdata-sections" valueType="string"/>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.1284857286" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
 							<tool commandLinePattern="${COMMAND} ${FLAGS} -MT ${OUTPUT_PREFIX}${OUTPUT}  ${OUTPUT_FLAG} ${OUTPUT_PREFIX}${OUTPUT} ${INPUTS}" id="cdt.managedbuild.tool.gnu.cross.cpp.compiler.1196270468" name="Cross G++ Compiler" superClass="cdt.managedbuild.tool.gnu.cross.cpp.compiler">
@@ -312,6 +313,12 @@
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.cross.exe.release.1354711777;cdt.managedbuild.config.gnu.cross.exe.release.1354711777.;cdt.managedbuild.tool.gnu.cross.c.compiler.42850259;cdt.managedbuild.tool.gnu.c.compiler.input.285813243">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.cross.exe.release.1354711777.2018298286;cdt.managedbuild.config.gnu.cross.exe.release.1354711777.2018298286.;cdt.managedbuild.tool.gnu.cross.c.compiler.457854809;cdt.managedbuild.tool.gnu.c.compiler.input.1284857286">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.cross.exe.release.1354711777.2018298286;cdt.managedbuild.config.gnu.cross.exe.release.1354711777.2018298286.;cdt.managedbuild.tool.gnu.cross.cpp.compiler.1196270468;cdt.managedbuild.tool.gnu.cpp.compiler.input.399307048">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.cross.exe.release.1354711777.455808150;cdt.managedbuild.config.gnu.cross.exe.release.1354711777.455808150.;cdt.managedbuild.tool.gnu.cross.c.compiler.1418051129;cdt.managedbuild.tool.gnu.c.compiler.input.477910194">

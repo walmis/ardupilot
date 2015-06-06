@@ -1199,7 +1199,7 @@ void NavEKF::UpdateStrapdownEquationsNED()
 void NavEKF::CovariancePrediction()
 {
     perf_begin(_perf_CovariancePrediction);
-    //dbgset(1);
+
     float windVelSigma; // wind velocity 1-sigma process noise - m/s
     float dAngBiasSigma;// delta angle bias 1-sigma process noise - rad/s
     float dVelBiasSigma;// delta velocity bias 1-sigma process noise - m/s

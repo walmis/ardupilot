@@ -222,11 +222,11 @@ void Copter::loop()
 
     // for mainloop failure monitoring
     mainLoop_count++;
-
+    //dbgset();
     // Execute the fast loop
     // ---------------------
     fast_loop();
-
+   // dbgclr();
     // tell the scheduler one tick has passed
     scheduler.tick();
 

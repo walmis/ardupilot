@@ -290,6 +290,22 @@ void AP_InertialSensor_MPU6050::_onFifoData() {
 
 void AP_InertialSensor_MPU6050::_onSampleData() {
 
+	_accel_filtered = _accel_filter.apply(Vector3f(int16_val(_data, 1),
+                                                   int16_val(_data, 0),
+                                                   -int16_val(_data, 2)));
+
+	int a = int16_val(_data, 1);
+	int b = int16_val(_data, 0);
+	int c = -int16_val(_data, 2);
+
+	//hal.console->printf("a %f\n", a*MPU6000_ACCEL_SCALE_1G);
+
+
+    _gyro_filtered = _gyro_filter.apply(Vector3f(int16_val(_data, 5),
+                                                 int16_val(_data, 4),
+                                                 -int16_val(_data, 6)));
+
+    _num_samples++;
 
 }
 
@@ -308,25 +324,18 @@ void AP_InertialSensor_MPU6050::_poll_data(void)
 //	if(!_i2c->readNonblocking(_addr, MPUREG_ACCEL_XOUT_H, 14, _data,
 //			FUNCTOR_BIND_MEMBER(&AP_InertialSensor_MPU6050::_onSampleData, void))) {
 //	}
-
 	if(!_i2c_sem->take(1)) {
 		return;
 	}
-
-	if(_i2c->readRegisters(_addr, MPUREG_ACCEL_XOUT_H, 14, _data)) {
-
-		_accel_filtered = _accel_filter.apply(Vector3f(int16_val(_data, 1),
-	                                                   int16_val(_data, 0),
-	                                                   -int16_val(_data, 2)));
-
-	    _gyro_filtered = _gyro_filter.apply(Vector3f(int16_val(_data, 5),
-	                                                 int16_val(_data, 4),
-	                                                 -int16_val(_data, 6)));
-
-	    _num_samples++;
+//
+	if(_i2c->readRegisters(_addr, MPUREG_ACCEL_XOUT_H, 14, _data) == 0) {
+		_onSampleData();
+	} else {
+		hal.console->print("!");
 	}
 
 	_i2c_sem->give();
+
 }
 
 uint8_t AP_InertialSensor_MPU6050::_register_read( uint8_t reg )
@@ -464,7 +473,7 @@ bool AP_InertialSensor_MPU6050::_hardware_init()
 
     // read the product ID rev c has 1/2 the sensitivity of rev d
     _mpu6000_product_id = _register_read(MPUREG_PRODUCT_ID);
-    //Serial.printf("Product_ID= 0x%x\n", (unsigned) _mpu6000_product_id);
+     hal.console->printf("Product_ID= 0x%x\n", (unsigned) _mpu6000_product_id);
 
     if ((_mpu6000_product_id == MPU6000ES_REV_C4) || (_mpu6000_product_id == MPU6000ES_REV_C5) ||
         (_mpu6000_product_id == MPU6000_REV_C4)   || (_mpu6000_product_id == MPU6000_REV_C5)) {
@@ -478,15 +487,15 @@ bool AP_InertialSensor_MPU6050::_hardware_init()
     hal.scheduler->delay(1);
 
     // configure interrupt to fire when new data arrives
-    _register_write(MPUREG_INT_ENABLE, BIT_RAW_RDY_EN | BIT_FIFO_OFLOW_EN);
+    _register_write(MPUREG_INT_ENABLE, BIT_RAW_RDY_EN);
     hal.scheduler->delay(1);
 
     // clear interrupt on any read, and hold the data ready pin high
     // until we clear the interrupt
-    _register_write(MPUREG_INT_PIN_CFG, BIT_INT_RD_CLEAR | BIT_LATCH_INT_EN | BIT_I2C_BYPASS_EN);
+    _register_write(MPUREG_INT_PIN_CFG, BIT_INT_RD_CLEAR | BIT_LATCH_INT_EN);
 
     hal.scheduler->delay(50);
-    configure_fifo(INV_XYZ_ACCEL | INV_XYZ_GYRO);
+    //configure_fifo(INV_XYZ_ACCEL | INV_XYZ_GYRO);
 
     _i2c_sem->give();
 
