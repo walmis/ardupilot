@@ -259,14 +259,27 @@ bool AP_Baro_MS56XX::_check_crc(void)
 */
 void AP_Baro_MS56XX::_timer(void)
 {
-    // Throttle read rate to 100hz maximum.
-    if (hal.scheduler->micros() - _last_timer < 10000) {
-        return;
-    }
+	// Throttle read rate to 100hz maximum.
+	if (hal.scheduler->micros() - _last_timer < 10000) {
+		return;
+	}
 
-    if (!_serial->sem_take_nonblocking()) {
-        return;
-    }
+	if (!_use_timer) {
+		if (!_serial->sem_take_blocking()) {
+			return;
+		}
+	} else {
+#if AP_HAL_BOARD == HAL_BOARD_SKYFALCON
+		if (!_serial->sem_take_blocking()) {
+			return;
+		}
+#else
+		if (!_serial->sem_take_nonblocking()) {
+			return;
+		}
+#endif
+
+	}
 
     if (_state == 0) {
         // On state 0 we read temp

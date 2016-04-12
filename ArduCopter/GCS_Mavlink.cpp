@@ -681,6 +681,11 @@ bool GCS_MAVLINK::try_send_message(enum ap_message id)
         copter.gcs[chan-MAVLINK_COMM_0].send_ahrs2(copter.ahrs);
         break;
 
+    case MSG_BATTERY_STATUS:
+        CHECK_PAYLOAD_SIZE(BATTERY_STATUS);
+        copter.gcs[chan-MAVLINK_COMM_0].send_battery_status(copter.battery);
+        break;
+
     case MSG_HWSTATUS:
         CHECK_PAYLOAD_SIZE(HWSTATUS);
         copter.send_hwstatus(chan);
@@ -962,6 +967,7 @@ GCS_MAVLINK::data_stream_send(void)
         send_message(MSG_GIMBAL_REPORT);
         send_message(MSG_EKF_STATUS_REPORT);
         send_message(MSG_VIBRATION);
+        send_message(MSG_BATTERY_STATUS);
         send_message(MSG_RPM);
     }
 }

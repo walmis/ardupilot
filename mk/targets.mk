@@ -22,6 +22,10 @@ apm2: HAL_BOARD = HAL_BOARD_APM2
 apm2: TOOLCHAIN = AVR
 apm2: all
 
+skyfalcon: HAL_BOARD = HAL_BOARD_SKYFALCON
+skyfalcon: TOOLCHAIN = ARM
+skyfalcon: all
+
 flymaple: HAL_BOARD = HAL_BOARD_FLYMAPLE
 flymaple: TOOLCHAIN = ARM
 flymaple: all

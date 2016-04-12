@@ -284,7 +284,11 @@ void AP_Baro::init(void)
     }
 #elif HAL_BARO_DEFAULT == HAL_BARO_MS5611 && HAL_BARO_MS5611_I2C_BUS == 0
     {
-        drivers[0] = new AP_Baro_MS5611(*this, new AP_SerialBus_I2C(hal.i2c, HAL_BARO_MS5611_I2C_ADDR), false);
+    	#if AP_HAL_BOARD_DRIVER == AP_HAL_SKYFALCON
+    	    	drivers[0] = new AP_Baro_MS5611(*this, new AP_SerialBus_I2C(hal.i2c, HAL_BARO_MS5611_I2C_ADDR), true);
+    	#else
+    	        drivers[0] = new AP_Baro_MS5611(*this, new AP_SerialBus_I2C(hal.i2c, HAL_BARO_MS5611_I2C_ADDR), false);
+    	#endif
         _num_drivers = 1;
     }
 #elif HAL_BARO_DEFAULT == HAL_BARO_MS5611_SPI

@@ -24,6 +24,9 @@ void DataFlash_Class::Init(const struct LogStructure *structure, uint8_t num_typ
     backend = new DataFlash_APM2(*this);
 #elif defined(HAL_BOARD_LOG_DIRECTORY)
     backend = new DataFlash_File(*this, HAL_BOARD_LOG_DIRECTORY);
+#elif AP_HAL_BOARD == HAL_BOARD_SKYFALCON
+    extern DataFlash_Backend* SKYFalcon_getDataflash(DataFlash_Class &front);
+	backend = SKYFalcon_getDataflash(*this);
 #else
     // no dataflash driver
     backend = new DataFlash_Empty(*this);

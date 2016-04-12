@@ -107,8 +107,8 @@ public:
         k_param_gps_hdop_good,
         k_param_battery,
         k_param_fs_batt_mah,
-        k_param_angle_rate_max,         // remove
-        k_param_rssi_range,
+		k_param_radio_cfg,
+		k_param_rssi_range,
         k_param_rc_feel_rp,
         k_param_NavEKF,                 // Extended Kalman Filter Inertial Navigation Group
         k_param_mission,                // mission library
@@ -459,12 +459,12 @@ public:
     RC_Channel_aux          rc_6;
     RC_Channel_aux          rc_7;
     RC_Channel_aux          rc_8;
-#if CONFIG_HAL_BOARD == HAL_BOARD_PX4 || CONFIG_HAL_BOARD == HAL_BOARD_VRBRAIN
+#if CONFIG_HAL_BOARD == HAL_BOARD_PX4 || CONFIG_HAL_BOARD == HAL_BOARD_VRBRAIN || CONFIG_HAL_BOARD == HAL_BOARD_SKYFALCON
     RC_Channel_aux          rc_9;
 #endif
     RC_Channel_aux          rc_10;
     RC_Channel_aux          rc_11;
-#if CONFIG_HAL_BOARD == HAL_BOARD_PX4 || CONFIG_HAL_BOARD == HAL_BOARD_VRBRAIN
+#if CONFIG_HAL_BOARD == HAL_BOARD_PX4 || CONFIG_HAL_BOARD == HAL_BOARD_VRBRAIN || CONFIG_HAL_BOARD == HAL_BOARD_SKYFALCON
     RC_Channel_aux          rc_12;
     RC_Channel_aux          rc_13;
     RC_Channel_aux          rc_14;
@@ -537,12 +537,12 @@ public:
         rc_6                (CH_6),
         rc_7                (CH_7),
         rc_8                (CH_8),
-#if CONFIG_HAL_BOARD == HAL_BOARD_PX4 || CONFIG_HAL_BOARD == HAL_BOARD_VRBRAIN
+#if CONFIG_HAL_BOARD == HAL_BOARD_PX4 || CONFIG_HAL_BOARD == HAL_BOARD_VRBRAIN || CONFIG_HAL_BOARD == HAL_BOARD_SKYFALCON
         rc_9                (CH_9),
 #endif
         rc_10               (CH_10),
         rc_11               (CH_11),
-#if CONFIG_HAL_BOARD == HAL_BOARD_PX4 || CONFIG_HAL_BOARD == HAL_BOARD_VRBRAIN
+#if CONFIG_HAL_BOARD == HAL_BOARD_PX4 || CONFIG_HAL_BOARD == HAL_BOARD_VRBRAIN || CONFIG_HAL_BOARD == HAL_BOARD_SKYFALCON
         rc_12               (CH_12),
         rc_13               (CH_13),
         rc_14               (CH_14),

@@ -67,6 +67,12 @@
  # define HAL_GPIO_C_LED_PIN        27
  # define HAL_GPIO_LED_ON           HIGH
  # define HAL_GPIO_LED_OFF          LOW
+#elif CONFIG_HAL_BOARD == HAL_BOARD_SKYFALCON
+# define HAL_GPIO_A_LED_PIN        0x2F //green
+# define HAL_GPIO_B_LED_PIN        0x2D //red
+# define HAL_GPIO_C_LED_PIN        0x2E //blue
+# define HAL_GPIO_LED_ON           HIGH
+# define HAL_GPIO_LED_OFF          LOW
 #else
 #error "Unknown board type in AP_Notify"
 #endif

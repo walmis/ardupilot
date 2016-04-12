@@ -1,7 +1,11 @@
 /// -*- tab-width: 4; Mode: C++; c-basic-offset: 4; indent-tabs-mode: nil -*-
 
 #include "Copter.h"
+#if CONFIG_HAL_BOARD == HAL_BOARD_SKYFALCON
+#include "AP_Radio.hpp"
 
+extern AP_Radio radio_cfg;
+#endif
 /*
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -27,6 +31,7 @@
 #define GGROUP(v, name, class) { AP_PARAM_GROUP, name, Parameters::k_param_ ## v, &copter.g.v, {group_info : class::var_info} }
 #define GOBJECT(v, name, class) { AP_PARAM_GROUP, name, Parameters::k_param_ ## v, (const void *)&copter.v, {group_info : class::var_info} }
 #define GOBJECTN(v, pname, name, class) { AP_PARAM_GROUP, name, Parameters::k_param_ ## pname, (const void *)&copter.v, {group_info : class::var_info} }
+#define GOBJECT_EXTERN(v, name, class) { AP_PARAM_GROUP, name, Parameters::k_param_ ## v, (const void *)&v, {group_info : class::var_info} }
 
 const AP_Param::Info Copter::var_info[] PROGMEM = {
     // @Param: SYSID_SW_MREV
@@ -556,7 +561,7 @@ const AP_Param::Info Copter::var_info[] PROGMEM = {
     // @Path: ../libraries/RC_Channel/RC_Channel.cpp,../libraries/RC_Channel/RC_Channel_aux.cpp
     GGROUP(rc_8,    "RC8_", RC_Channel_aux),
 
-#if CONFIG_HAL_BOARD == HAL_BOARD_PX4 || CONFIG_HAL_BOARD == HAL_BOARD_VRBRAIN
+#if CONFIG_HAL_BOARD == HAL_BOARD_PX4 || CONFIG_HAL_BOARD == HAL_BOARD_VRBRAIN || CONFIG_HAL_BOARD == HAL_BOARD_SKYFALCON
     // @Group: RC9_
     // @Path: ../libraries/RC_Channel/RC_Channel.cpp,../libraries/RC_Channel/RC_Channel_aux.cpp
     GGROUP(rc_9,                    "RC9_", RC_Channel_aux),
@@ -569,7 +574,7 @@ const AP_Param::Info Copter::var_info[] PROGMEM = {
     // @Path: ../libraries/RC_Channel/RC_Channel.cpp,../libraries/RC_Channel/RC_Channel_aux.cpp
     GGROUP(rc_11,                    "RC11_", RC_Channel_aux),
 
-#if CONFIG_HAL_BOARD == HAL_BOARD_PX4 || CONFIG_HAL_BOARD == HAL_BOARD_VRBRAIN
+#if CONFIG_HAL_BOARD == HAL_BOARD_PX4 || CONFIG_HAL_BOARD == HAL_BOARD_VRBRAIN || CONFIG_HAL_BOARD == HAL_BOARD_SKYFALCON
     // @Group: RC12_
     // @Path: ../libraries/RC_Channel/RC_Channel.cpp,../libraries/RC_Channel/RC_Channel_aux.cpp
     GGROUP(rc_12,                   "RC12_", RC_Channel_aux),
@@ -1069,7 +1074,11 @@ const AP_Param::Info Copter::var_info[] PROGMEM = {
     // @User: Standard
     GSCALAR(autotune_aggressiveness, "AUTOTUNE_AGGR", 0.1f),
 
-    // @Param: AUTOTUNE_MIN_D
+	#if CONFIG_HAL_BOARD == HAL_BOARD_SKYFALCON
+	    GOBJECT_EXTERN(radio_cfg,            "RADIO_",  AP_Radio),
+	#endif
+
+	// @Param: AUTOTUNE_MIN_D
     // @DisplayName: AutoTune minimum D
     // @Description: Defines the minimum D gain
     // @Range: 0.001 0.006

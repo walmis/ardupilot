@@ -60,6 +60,7 @@ enum ap_message {
     MSG_CAMERA_FEEDBACK,
     MSG_MOUNT_STATUS,
     MSG_OPTICAL_FLOW,
+    MSG_BATTERY_STATUS,
     MSG_GIMBAL_REPORT,
     MSG_EKF_STATUS_REPORT,
     MSG_LOCAL_POSITION,
@@ -145,6 +146,7 @@ public:
     void send_sensor_offsets(const AP_InertialSensor &ins, const Compass &compass, AP_Baro &barometer);
     void send_ahrs(AP_AHRS &ahrs);
     void send_battery2(const AP_BattMonitor &battery);
+    void send_battery_status(const AP_BattMonitor &battery);
 #if AP_AHRS_NAVEKF_AVAILABLE
     void send_opticalflow(AP_AHRS_NavEKF &ahrs, const OpticalFlow &optflow);
 #endif

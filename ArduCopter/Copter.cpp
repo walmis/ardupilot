@@ -19,7 +19,11 @@
   constructor for main Copter class
  */
 
+#if AP_HAL_BOARD_DRIVER == AP_HAL_SKYFALCON
+extern const AP_HAL::HAL& hal;
+#else
 const AP_HAL::HAL& hal = AP_HAL_BOARD_DRIVER;
+#endif
 
 Copter::Copter(void) :
     ins_sample_rate(AP_InertialSensor::RATE_400HZ),

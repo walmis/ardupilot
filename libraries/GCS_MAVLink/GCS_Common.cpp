@@ -50,6 +50,28 @@ GCS_MAVLINK::init(AP_HAL::UARTDriver *port, mavlink_channel_t mav_chan)
     reset_cli_timeout();
 }
 
+void GCS_MAVLINK::send_battery_status(const AP_BattMonitor &battery){
+	uint16_t voltages[10];
+	memset(voltages, 0, sizeof(uint16_t)*10);
+	voltages[0] = battery.voltage()*1000;
+
+	uint16_t cellv = (battery.voltage()/3)*1000;
+
+    voltages[1] = cellv;
+	voltages[2] = cellv;
+	voltages[3] = cellv;
+
+	mavlink_msg_battery_status_send(chan,
+			0,
+			MAV_BATTERY_FUNCTION_ALL,
+			MAV_BATTERY_TYPE_LIPO,
+			INT16_MAX,
+			voltages,
+			battery.current_amps()*100,
+			battery.current_total_mah(),
+			-1,
+			battery.capacity_remaining_pct());
+}
 
 /*
   setup a UART, handling begin() and init()
