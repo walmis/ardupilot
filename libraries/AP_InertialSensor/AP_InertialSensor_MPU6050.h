@@ -30,7 +30,6 @@ public:
 
     float get_delta_time() const
     {
-        // the sensor runs at 200Hz
         return 0.001f;
     }
 
@@ -41,7 +40,6 @@ protected:
     uint8_t _accel_instance;
 private:
     int16_t reset_fifo(uint8_t sensors);
-    bool configure_fifo(uint8_t sensors);
     void logWriteImu(Vector3f &acc, Vector3f &gyro);
 
     void                 _poll_data(void);

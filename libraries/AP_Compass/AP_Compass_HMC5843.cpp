@@ -144,43 +144,7 @@ bool AP_Compass_HMC5843::read_raw()
 // accumulate a reading from the magnetometer
 void AP_Compass_HMC5843::accumulate(void)
 {
-    if (!_initialised) {
-        // someone has tried to enable a compass for the first time
-        // mid-flight .... we can't do that yet (especially as we won't
-        // have the right orientation!)
-        return;
-    }
-   uint32_t tnow = hal.scheduler->micros();
-   if (_accum_count != 0 && (tnow - _last_accum_time) < 13333) {
-	  // the compass gets new data at 75Hz
-	  return;
-   }
 
-   if (!_i2c_sem->take(1)) {
-       // the bus is busy - try again later
-       return;
-   }
-   bool result = read_raw();
-   _i2c_sem->give();
-
-   if (result) {
-	  // the _mag_N values are in the range -2048 to 2047, so we can
-	  // accumulate up to 15 of them in an int16_t. Let's make it 14
-	  // for ease of calculation. We expect to do reads at 10Hz, and
-	  // we get new data at most 75Hz, so we don't expect to
-	  // accumulate more than 8 before a read
-	  _mag_x_accum += _mag_x;
-	  _mag_y_accum += _mag_y;
-	  _mag_z_accum += _mag_z;
-	  _accum_count++;
-	  if (_accum_count == 14) {
-		 _mag_x_accum /= 2;
-		 _mag_y_accum /= 2;
-		 _mag_z_accum /= 2;
-		 _accum_count = 7;
-	  }
-	  _last_accum_time = tnow;
-   }
 }
 
 
@@ -339,6 +303,8 @@ AP_Compass_HMC5843::init()
 	// perform an initial read
 	read();
 
+	hal.scheduler->register_timer_process(FUNCTOR_BIND_MEMBER(&AP_Compass_HMC5843::_timer_proc, void));
+
 #if 0
     hal.console->printf_P(PSTR("CalX: %.2f CalY: %.2f CalZ: %.2f\n"), 
                           calibration[0], calibration[1], calibration[2]);
@@ -351,6 +317,46 @@ AP_Compass_HMC5843::init()
     }
 
     return success;
+}
+//#error "tesst"
+void AP_Compass_HMC5843::_timer_proc() {
+    if (!_initialised) {
+        // someone has tried to enable a compass for the first time
+        // mid-flight .... we can't do that yet (especially as we won't
+        // have the right orientation!)
+        return;
+    }
+   uint32_t tnow = hal.scheduler->micros();
+   if (_accum_count != 0 && (tnow - _last_accum_time) < 13333) {
+	  // the compass gets new data at 75Hz
+	  return;
+   }
+
+   if (!_i2c_sem->take(5)) {
+       // the bus is busy - try again later
+       return;
+   }
+   bool result = read_raw();
+   _i2c_sem->give();
+
+   if (result) {
+	  // the _mag_N values are in the range -2048 to 2047, so we can
+	  // accumulate up to 15 of them in an int16_t. Let's make it 14
+	  // for ease of calculation. We expect to do reads at 10Hz, and
+	  // we get new data at most 75Hz, so we don't expect to
+	  // accumulate more than 8 before a read
+	  _mag_x_accum += _mag_x;
+	  _mag_y_accum += _mag_y;
+	  _mag_z_accum += _mag_z;
+	  _accum_count++;
+	  if (_accum_count == 14) {
+		 _mag_x_accum /= 2;
+		 _mag_y_accum /= 2;
+		 _mag_z_accum /= 2;
+		 _accum_count = 7;
+	  }
+	  _last_accum_time = tnow;
+   }
 }
 
 // Read Sensor data
@@ -380,7 +386,7 @@ void AP_Compass_HMC5843::read()
 		  return;
 	   }
 	}
-
+	hal.scheduler->suspend_timer_procs();
     Vector3f field(_mag_x_accum * calibration[0],
                    _mag_y_accum * calibration[1],
                    _mag_z_accum * calibration[2]);
@@ -388,6 +394,7 @@ void AP_Compass_HMC5843::read()
 
 	_accum_count = 0;
 	_mag_x_accum = _mag_y_accum = _mag_z_accum = 0;
+	hal.scheduler->resume_timer_procs();
 
     // rotate to the desired orientation
     if (_product_id == AP_COMPASS_TYPE_HMC5883L) {

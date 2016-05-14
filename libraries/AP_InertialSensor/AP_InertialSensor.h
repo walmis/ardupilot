@@ -15,8 +15,14 @@
    than 1 then redundent sensors may be available
  */
 #if HAL_CPU_CLASS > HAL_CPU_CLASS_16
+#if HAL_BOARD == HAL_BOARD_SKYFALCON
+#define INS_MAX_INSTANCES 1
+#define INS_MAX_BACKENDS  1
+#else
 #define INS_MAX_INSTANCES 3
 #define INS_MAX_BACKENDS  6
+#endif
+
 #define INS_VIBRATION_CHECK 1
 #define INS_VIBRATION_CHECK_INSTANCES 2
 #else
@@ -372,6 +378,7 @@ private:
 #include "AP_InertialSensor_PX4.h"
 #include "AP_InertialSensor_Oilpan.h"
 #include "AP_InertialSensor_MPU9250.h"
+#include "AP_InertialSensor_MPU6050.h"
 #include "AP_InertialSensor_L3G4200D.h"
 #include "AP_InertialSensor_Flymaple.h"
 #include "AP_InertialSensor_MPU9150.h"

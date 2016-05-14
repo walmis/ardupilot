@@ -195,7 +195,6 @@ AP_InertialSensor_MPU6050::AP_InertialSensor_MPU6050(AP_InertialSensor &imu) :
     _mpu6000_product_id(AP_PRODUCT_ID_NONE),
     _error_count(0),
     _addr(0x68),
-	_fifo_count(0),
     _accel_filter(SAMPLE_RATE, 15),
     _gyro_filter(SAMPLE_RATE, 15)
 {
@@ -245,10 +244,6 @@ uint16_t AP_InertialSensor_MPU6050::_init_sensor( )
 
 bool AP_InertialSensor_MPU6050::update( void )
 {
-	//_poll_data();
-
-    //Vector3f accel, gyro;
-
     // disable timer procs for mininum time
     hal.scheduler->suspend_timer_procs();
    //accel = _accel_filtered;
@@ -321,7 +316,7 @@ void AP_InertialSensor_MPU6050::_onSampleData() {
 	Vector3f accel = Vector3f(int16_val(_data, 1), int16_val(_data, 0), -int16_val(_data, 2));
 	accel *= _acc_scale;
 
-	_rotate_and_correct_accel(_accel_instance, accel);
+	//_rotate_and_correct_accel(_accel_instance, accel);
 
 	_imu.calc_vibration_and_clipping(_accel_instance, accel, dt);
 	_accel_filtered = _accel_filter.apply(accel);
@@ -334,7 +329,7 @@ void AP_InertialSensor_MPU6050::_onSampleData() {
     Vector3f gyro;
     gyro = Vector3f(int16_val(_data, 5), int16_val(_data, 4), -int16_val(_data, 6));
     gyro *= _gyro_scale;
-	_rotate_and_correct_gyro(_gyro_instance, gyro);
+	//_rotate_and_correct_gyro(_gyro_instance, gyro);
 	_gyro_filtered = _gyro_filter.apply(gyro);
 
 	logWriteImu(accel, gyro);
@@ -367,16 +362,6 @@ void AP_InertialSensor_MPU6050::_onSampleData() {
  */
 void AP_InertialSensor_MPU6050::_poll_data(void)
 {
-	//dbgset(1);
-#ifdef MPU6000_DRDY_PIN
-	if(!_sem_missed && hal.gpio->read(MPU6000_DRDY_PIN) == 0) {
-		return;
-	}
-#endif
-
-//	if(!_i2c->readNonblocking(_addr, MPUREG_ACCEL_XOUT_H, 14, _data,
-//			FUNCTOR_BIND_MEMBER(&AP_InertialSensor_MPU6050::_onSampleData, void))) {
-//	}
 
 	if(!_i2c_sem->take(1)) {
 		return;
@@ -402,16 +387,6 @@ void AP_InertialSensor_MPU6050::_register_write(uint8_t reg, uint8_t val)
     _i2c->writeRegister(_addr, reg, val);
 }
 
-int16_t AP_InertialSensor_MPU6050::reset_fifo(uint8_t sensors)
-{
-	_i2c->writeRegister(_addr, MPUREG_USER_CTRL, 0);
-    _i2c->writeRegister(_addr, MPUREG_USER_CTRL, BIT_FIFO_RST);
-    _i2c->writeRegister(_addr, MPUREG_USER_CTRL, BIT_FIFO_EN);
-
-	_fifo_count = 0;
-
-    return 0;
-}
 
 /*
   useful when debugging SPI bus errors
@@ -491,11 +466,24 @@ bool AP_InertialSensor_MPU6050::_hardware_init()
     _register_write(MPUREG_PWR_MGMT_2, 0x00);            // only used for wake-up in accelerometer only low power mode
     hal.scheduler->delay(1);
 
-    uint8_t default_filter;
 
-    //Set filter to 188Hz, this causes gyro to output at 1khz instead of 8
-    _register_write(MPUREG_CONFIG, 1);
-    _register_write(MPUREG_SMPLRT_DIV, MPUREG_SMPLRT_1000HZ);
+    // set sample rate to 1000Hz and apply a software filter
+    // In this configuration, the gyro sample rate is 8kHz
+    // Therefore the sample rate value is 8kHz/(SMPLRT_DIV + 1)
+    // So we have to set it to 7 to have a 1kHz sampling
+    // rate on the gyro
+
+
+    //disable mpu filter
+    _register_write(MPUREG_CONFIG, 0);
+
+    // set sample rate to 1000Hz and apply a software filter
+    // In this configuration, the gyro sample rate is 8kHz
+    // Therefore the sample rate value is 8kHz/(SMPLRT_DIV + 1)
+    // So we have to set it to 7 to have a 1kHz sampling
+    // rate on the gyro
+    _register_write(MPUREG_SMPLRT_DIV, 7);
+
 
     hal.scheduler->delay(1);
 
@@ -533,24 +521,7 @@ bool AP_InertialSensor_MPU6050::_hardware_init()
     return true;
 }
 
-bool AP_InertialSensor_MPU6050::configure_fifo(uint8_t sensors)
-{
-    int16_t result = 0;
 
-    /* Compass data isn't going into the FIFO. Stop trying. */
-    sensors &= ~INV_XYZ_COMPASS;
-
-    // Enable or disable the interrupts
-    // set_int_enable(1);
-
-    if (sensors) {
-        _i2c->writeRegister(_addr, MPUREG_FIFO_EN, sensors);
-    	if (reset_fifo(sensors)) {
-            return -1;
-        }
-    }
-    return 1;
-}
 
 #if MPU6000_DEBUG
 // dump all config registers - used for debug

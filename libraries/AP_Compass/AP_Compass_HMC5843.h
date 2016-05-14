@@ -40,6 +40,7 @@ public:
     void        read(void);
     void        accumulate(void);
 
+    void        _timer_proc(void);
     // detect the sensor
     static AP_Compass_Backend *detect(Compass &compass);
 

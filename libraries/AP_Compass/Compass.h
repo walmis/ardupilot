@@ -37,8 +37,14 @@
    than 1 then redundent sensors may be available
  */
 #if HAL_CPU_CLASS > HAL_CPU_CLASS_16
+#if HAL_BOARD == HAL_BOARD_SKYFALCON
+#define COMPASS_MAX_INSTANCES 1
+#define COMPASS_MAX_BACKEND   1
+#else
 #define COMPASS_MAX_INSTANCES 3
 #define COMPASS_MAX_BACKEND   3   
+#endif
+
 #else
 #define COMPASS_MAX_INSTANCES 1
 #define COMPASS_MAX_BACKEND   1   
