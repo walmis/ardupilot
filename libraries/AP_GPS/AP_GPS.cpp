@@ -449,6 +449,8 @@ void AP_GPS::detect_instance(uint8_t instance)
     state[instance].hdop = 9999;
 
     switch (_type[instance]) {
+#if CONFIG_HAL_BOARD != HAL_BOARD_SKYFALCON
+
     // by default the sbf/trimble gps outputs no data on its port, until configured.
     case GPS_TYPE_SBF:
         new_gps = new AP_GPS_SBF(*this, state[instance], _port[instance]);
@@ -461,6 +463,7 @@ void AP_GPS::detect_instance(uint8_t instance)
     case GPS_TYPE_NOVA:
         new_gps = new AP_GPS_NOVA(*this, state[instance], _port[instance]);
         break;
+#endif
 
     default:
         break;

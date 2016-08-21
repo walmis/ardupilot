@@ -265,4 +265,4 @@ typedef Matrix3<uint16_t>               Matrix3ui;
 typedef Matrix3<int32_t>                Matrix3l;
 typedef Matrix3<uint32_t>               Matrix3ul;
 typedef Matrix3<float>                  Matrix3f;
-typedef Matrix3<double>                 Matrix3d;
+//typedef Matrix3<double>                 Matrix3d;

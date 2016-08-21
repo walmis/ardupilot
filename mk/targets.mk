@@ -94,6 +94,10 @@ qurt: HAL_BOARD = HAL_BOARD_QURT
 qurt: TOOLCHAIN = QURT
 qurt: all
 
+skyfalcon: HAL_BOARD = HAL_BOARD_SKYFALCON
+skyfalcon: TOOLCHAIN = ARM
+skyfalcon: all
+
 # cope with HIL targets
 %-hil: EXTRAFLAGS += "-DHIL_MODE=HIL_MODE_SENSORS "
 %-hilsensors: EXTRAFLAGS += "-DHIL_MODE=HIL_MODE_SENSORS "
@@ -115,6 +119,7 @@ BOARDS += vrbrain
 BOARDS += vrbrain-v51 vrbrain-v52 vrbrain-v54
 BOARDS += vrcore-v10
 BOARDS += vrubrain-v51 vrubrain-v52
+BOARDS += skyfalcon
 
 define frame_template
 $(1)-$(2) : EXTRAFLAGS += "-DFRAME_CONFIG=$(shell echo $(2) | tr a-z A-Z | sed s/-/_/g)_FRAME "
