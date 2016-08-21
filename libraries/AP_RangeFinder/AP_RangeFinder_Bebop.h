@@ -13,7 +13,8 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #pragma once
-
+#if (CONFIG_HAL_BOARD_SUBTYPE == HAL_BOARD_SUBTYPE_LINUX_BEBOP || \
+     CONFIG_HAL_BOARD_SUBTYPE == HAL_BOARD_SUBTYPE_LINUX_DISCO) && defined(HAVE_LIBIIO)
 #include "RangeFinder.h"
 #include "RangeFinder_Backend.h"
 #include <AP_HAL_Linux/Thread.h>
@@ -137,4 +138,4 @@ private:
     int16_t _last_max_distance_cm = 850;
     int16_t _last_min_distance_cm = 32;
 };
-
+#endif

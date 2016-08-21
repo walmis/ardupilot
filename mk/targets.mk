@@ -94,6 +94,10 @@ qurt: HAL_BOARD = HAL_BOARD_QURT
 qurt: TOOLCHAIN = QURT
 qurt: all
 
+skyfalcon: HAL_BOARD = HAL_BOARD_SKYFALCON
+skyfalcon: TOOLCHAIN = ARM
+skyfalcon: all
+
 # cope with HIL targets
 %-hil: EXTRAFLAGS += "-DHIL_MODE=HIL_MODE_SENSORS "
 %-hilsensors: EXTRAFLAGS += "-DHIL_MODE=HIL_MODE_SENSORS "

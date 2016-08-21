@@ -3,7 +3,10 @@
 #include <AP_HAL/AP_HAL.h>
 #include <AP_Common/AP_Common.h>
 #include <AP_Param/AP_Param.h>
+
+#if CONFIG_HAL_BOARD != HAL_BOARD_SKYFALCON
 #include <sys/ioctl.h>
+#endif
 
 #if CONFIG_HAL_BOARD == HAL_BOARD_PX4 && !defined(CONFIG_ARCH_BOARD_PX4FMU_V1)
 

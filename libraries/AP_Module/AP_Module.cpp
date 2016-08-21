@@ -17,6 +17,8 @@
   support for external modules
  */
 
+#if CONFIG_HAL_BOARD != HAL_BOARD_SKYFALCON
+
 #include <stdio.h>
 #include <dirent.h>
 #if defined(HAVE_LIBDL)
@@ -278,3 +280,5 @@ void AP_Module::call_hook_accel_sample(uint8_t instance, float dt, const Vector3
     }
 #endif
 }
+
+#endif

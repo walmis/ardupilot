@@ -1,6 +1,10 @@
 #pragma once
 
 #include <cmath>
+
+using std::isnan;
+using std::isinf;
+
 #include <limits>
 #include <stdint.h>
 #include <type_traits>

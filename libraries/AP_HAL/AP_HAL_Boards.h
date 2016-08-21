@@ -13,6 +13,7 @@
 #define HAL_BOARD_VRBRAIN  8
 #define HAL_BOARD_QURT     9
 #define HAL_BOARD_EMPTY   99
+#define HAL_BOARD_SKYFALCON   100
 
 /* Default board subtype is -1 */
 #define HAL_BOARD_SUBTYPE_NONE -1
