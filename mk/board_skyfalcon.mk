@@ -46,15 +46,15 @@ ARM_OPTFLAGS        = -Os
 
 CPUFLAGS     = -D_GNU_SOURCE
 CPULDFLAGS   = -g
-OPTFLAGS     ?= -Os -g3
+OPTFLAGS     ?= -Os -g3 -fno-math-errno -fsingle-precision-constant -finline-functions
 
 CXXFLAGS        =   -g $(CPUFLAGS) $(DEFINES) $(OPTFLAGS) $(ARM_CPUFLAGS)
 CXXFLAGS       +=   -std=gnu++11 $(WARNFLAGS) $(WARNFLAGSCXX) $(DEPFLAGS) $(CXXOPTS) 
-CFLAGS          =   -g $(CPUFLAGS) $(DEFINES) -Wa,$(LISTOPTS) $(OPTFLAGS) $(ARM_CPUFLAGS)
+CFLAGS          =   -g $(CPUFLAGS) $(DEFINES) -Wa,$(LISTOPTS) $(OPTFLAGS) $(ARM_CPUFLAGS) 
 CFLAGS         +=   $(WARNFLAGS) $(DEPFLAGS) $(COPTS)
-ASFLAGS         =   -g $(CPUFLAGS) $(DEFINES) -Wa,$(LISTOPTS) $(DEPFLAGS) $(ARM_CPUFLAGS)
+ASFLAGS         =   -g $(CPUFLAGS) $(DEFINES) -Wa,$(LISTOPTS) $(DEPFLAGS) $(ARM_CPUFLAGS) 
 ASFLAGS        +=   $(ASOPTS)
-LDFLAGS         =   -g $(CPUFLAGS) $(OPTFLAGS) $(WARNFLAGS) $(ARM_CPUFLAGS)
+LDFLAGS         =   -g $(CPUFLAGS) $(OPTFLAGS) $(WARNFLAGS) $(ARM_CPUFLAGS) 
 
 LIBS ?= -lm
 

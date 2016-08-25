@@ -18,15 +18,15 @@
  */
 
 #if CONFIG_HAL_BOARD != HAL_BOARD_SKYFALCON
-
 #include <stdio.h>
 #include <dirent.h>
 #if defined(HAVE_LIBDL)
 #include <dlfcn.h>
 #endif
+#endif
 #include <AP_Module/AP_Module.h>
 #include <AP_Module/AP_Module_Structures.h>
-
+#if AP_MODULE_SUPPORTED
 struct AP_Module::hook_list *AP_Module::hooks[NUM_HOOKS];
 
 const char *AP_Module::hook_names[AP_Module::NUM_HOOKS] = {
@@ -36,7 +36,7 @@ const char *AP_Module::hook_names[AP_Module::NUM_HOOKS] = {
     "ap_hook_gyro_sample",
     "ap_hook_accel_sample",
 };
-
+#endif
 /*
   scan a module for hook symbols
  */
@@ -77,6 +77,7 @@ void AP_Module::module_scan(const char *path)
 */
 void AP_Module::init(const char *module_path)
 {
+#if AP_MODULE_SUPPORTED
     // scan through module directory looking for *.so
     DIR *d;
     struct dirent *de;
@@ -97,6 +98,7 @@ void AP_Module::init(const char *module_path)
         free(path);
     }
     closedir(d);
+#endif
 }
 
 
@@ -281,4 +283,4 @@ void AP_Module::call_hook_accel_sample(uint8_t instance, float dt, const Vector3
 #endif
 }
 
-#endif
+

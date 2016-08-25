@@ -441,7 +441,7 @@ void AP_Mount::init(DataFlash_Class *dataflash, const AP_SerialManager& serial_m
             _backends[instance] = new AP_Mount_Servo(*this, state[instance], instance);
             _num_instances++;
 
-#if AP_AHRS_NAVEKF_AVAILABLE
+#if AP_AHRS_NAVEKF_AVAILABLE && CONFIG_HAL_BOARD != HAL_BOARD_SKYFALCON
         // check for MAVLink mounts
         } else if (mount_type == Mount_Type_SoloGimbal) {
             _backends[instance] = new AP_Mount_SoloGimbal(*this, state[instance], instance);

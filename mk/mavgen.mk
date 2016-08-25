@@ -10,3 +10,4 @@ $(MAVLINK_HEADERS): $(MESSAGE_DEFINITIONS)/ardupilotmega.xml $(MESSAGE_DEFINITIO
 	#goto mavlink module directory and run the most recent generator script
 	echo "Generating C code using mavgen.py located at" $(SKETCHBOOK)/modules/mavlink/
 	-PYTHONPATH=$(MAVLINK_DIR) python $(MAVLINK_DIR)/pymavlink/tools/mavgen.py --lang=C --wire-protocol=$(MAVLINK_WIRE_PROTOCOL) --output=$(MAVLINK_OUTPUT_DIR) $(MESSAGE_DEFINITIONS)/ardupilotmega.xml
+	cp -r "$(MAVLINK_OUTPUT_DIR)" "$(SKETCHBOOK)/libraries/GCS_MAVLink"
