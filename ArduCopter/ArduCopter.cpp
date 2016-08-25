@@ -500,8 +500,9 @@ void Copter::one_hz_loop()
 
     // log terrain data
     terrain_logging();
-
+#if ADSB_ENABLED == ENABLED
     adsb.set_is_flying(!ap.land_complete);
+#endif
 }
 
 // called at 50hz

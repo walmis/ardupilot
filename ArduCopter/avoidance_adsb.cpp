@@ -3,8 +3,10 @@
 
 void Copter::avoidance_adsb_update(void)
 {
+#if ADSB_ENABLED == ENABLED
     adsb.update();
     avoidance_adsb.update();
+#endif
 }
 
 #include <stdio.h>

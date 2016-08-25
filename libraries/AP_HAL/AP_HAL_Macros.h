@@ -17,3 +17,5 @@
 #endif
 
 #define NORETURN __attribute__ ((noreturn))
+
+#define assert

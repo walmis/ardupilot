@@ -46,7 +46,7 @@ ARM_OPTFLAGS        = -Os
 
 CPUFLAGS     = -D_GNU_SOURCE
 CPULDFLAGS   = -g
-OPTFLAGS     ?= -Os -g3 -fno-math-errno -fsingle-precision-constant -finline-functions
+OPTFLAGS     ?= -Os -g3 -fno-math-errno -fsingle-precision-constant
 
 CXXFLAGS        =   -g $(CPUFLAGS) $(DEFINES) $(OPTFLAGS) $(ARM_CPUFLAGS)
 CXXFLAGS       +=   -std=gnu++11 $(WARNFLAGS) $(WARNFLAGSCXX) $(DEPFLAGS) $(CXXOPTS) 

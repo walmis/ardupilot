@@ -503,7 +503,9 @@ private:
     AC_AttitudeControl_Multi attitude_control;
 #endif
     AC_PosControl pos_control;
+#if AC_FENCE == ENABLED
     AC_Avoid avoid;
+#endif
     AC_WPNav wp_nav;
     AC_Circle circle_nav;
 
@@ -588,12 +590,12 @@ private:
 #if FRAME_CONFIG == HELI_FRAME
     AC_InputManager_Heli input_manager;
 #endif
-
+#if ADSB_ENABLED == ENABLED
     AP_ADSB adsb {ahrs};
 
     // avoidance of adsb enabled vehicles (normally manned vheicles)
     AP_Avoidance_Copter avoidance_adsb{ahrs, adsb};
-
+#endif
     // use this to prevent recursion during sensor init
     bool in_mavlink_delay;
 

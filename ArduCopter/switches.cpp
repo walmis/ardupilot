@@ -577,7 +577,7 @@ void Copter::do_aux_switch_function(int8_t ch_function, uint8_t ch_flag)
                 }
             }
             break;
-
+#if ADSB_ENABLED == ENABLED
         case AUXSW_AVOID_ADSB:
             // enable or disable AP_Avoidance
             if (ch_flag == AUX_SWITCH_HIGH) {
@@ -588,7 +588,9 @@ void Copter::do_aux_switch_function(int8_t ch_function, uint8_t ch_flag)
                 Log_Write_Event(DATA_AVOIDANCE_ADSB_DISABLE);
             }
             break;
+#endif
     }
+
 }
 
 // save_trim - adds roll and pitch trims from the radio to ahrs

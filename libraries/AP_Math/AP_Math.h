@@ -23,6 +23,12 @@ using std::isinf;
 #include "vector3.h"
 
 #if __ARM_FP == 4
+
+#define acos acosf
+#define asin asinf
+#define sin sinf
+#define cos cosf
+
 __attribute((always_inline))
 inline float sqrtf(float op1) {
 	float result;

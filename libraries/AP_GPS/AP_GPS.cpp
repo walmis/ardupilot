@@ -257,7 +257,7 @@ AP_GPS::detect_instance(uint8_t instance)
     state[instance].instance = instance;
     state[instance].status = NO_GPS;
     state[instance].hdop = 9999;
-
+#if CONFIG_HAL_BOARD != HAL_BOARD_SKYFALCON
 	// by default the sbf/trimble gps outputs no data on its port, until configured.
 	if (_type[instance] == GPS_TYPE_SBF) {
 		_broadcast_gps_type("SBF", instance, -1); // baud rate isn't valid
@@ -269,7 +269,7 @@ AP_GPS::detect_instance(uint8_t instance)
 		_broadcast_gps_type("NOVA", instance, -1); // baud rate isn't valid
 		new_gps = new AP_GPS_NOVA(*this, state[instance], _port[instance]);
 	}
-
+#endif
     // record the time when we started detection. This is used to try
     // to avoid initialising a uBlox as a NMEA GPS
     if (dstate->detect_started_ms == 0) {
@@ -314,6 +314,7 @@ AP_GPS::detect_instance(uint8_t instance)
             _broadcast_gps_type("u-blox", instance, dstate->current_baud);
             new_gps = new AP_GPS_UBLOX(*this, state[instance], _port[instance]);
         } 
+#if CONFIG_HAL_BOARD != HAL_BOARD_SKYFALCON
 		else if ((_type[instance] == GPS_TYPE_AUTO || _type[instance] == GPS_TYPE_MTK19) &&
                  AP_GPS_MTK19::_detect(dstate->mtk19_detect_state, data)) {
 			_broadcast_gps_type("MTK19", instance, dstate->current_baud);
@@ -324,6 +325,7 @@ AP_GPS::detect_instance(uint8_t instance)
 			_broadcast_gps_type("MTK", instance, dstate->current_baud);
 			new_gps = new AP_GPS_MTK(*this, state[instance], _port[instance]);
 		}
+
         else if ((_type[instance] == GPS_TYPE_AUTO || _type[instance] == GPS_TYPE_SBP) &&
                  AP_GPS_SBP::_detect(dstate->sbp_detect_state, data)) {
             _broadcast_gps_type("SBP", instance, dstate->current_baud);
@@ -340,6 +342,7 @@ AP_GPS::detect_instance(uint8_t instance)
             _broadcast_gps_type("ERB", instance, dstate->current_baud);
             new_gps = new AP_GPS_ERB(*this, state[instance], _port[instance]);
         }
+        #endif
 		else if (now - dstate->detect_started_ms > (ARRAY_SIZE(_baudrates) * GPS_BAUD_TIME_MS)) {
 			// prevent false detection of NMEA mode in
 			// a MTK or UBLOX which has booted in NMEA mode

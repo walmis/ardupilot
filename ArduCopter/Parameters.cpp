@@ -826,7 +826,9 @@ const AP_Param::Info Copter::var_info[] = {
 
     // @Group: AVOID_
     // @Path: ../libraries/AC_Avoidance/AC_Avoid.cpp
+#if AC_FENCE == ENABLED
     GOBJECT(avoid,      "AVOID_",   AC_Avoid),
+#endif 
 
 #if AC_RALLY == ENABLED
     // @Group: RALLY_
@@ -901,7 +903,7 @@ const AP_Param::Info Copter::var_info[] = {
     // @Group: RPM
     // @Path: ../libraries/AP_RPM/AP_RPM.cpp
     GOBJECT(rpm_sensor, "RPM", AP_RPM),
-
+#if ADSB_ENABLED == ENABLED
     // @Group: ADSB_
     // @Path: ../libraries/AP_ADSB/AP_ADSB.cpp
     GOBJECT(adsb,                "ADSB_", AP_ADSB),
@@ -909,7 +911,7 @@ const AP_Param::Info Copter::var_info[] = {
     // @Group: AVD_
     // @Path: ../libraries/AP_Avoidance/AP_Avoidance.cpp
     GOBJECT(avoidance_adsb, "AVD_", AP_Avoidance_Copter),
-
+#endif
     // @Param: AUTOTUNE_AXES
     // @DisplayName: Autotune axis bitmask
     // @Description: 1-byte bitmap of axes to autotune

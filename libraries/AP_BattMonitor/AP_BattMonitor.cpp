@@ -170,6 +170,7 @@ AP_BattMonitor::init()
                 drivers[instance] = new AP_BattMonitor_Analog(*this, instance, state[instance]);
                 _num_instances++;
                 break;
+#if CONFIG_HAL_BOARD != HAL_BOARD_SKYFALCON
             case BattMonitor_TYPE_SMBUS:
                 state[instance].instance = instance;
 #if CONFIG_HAL_BOARD == HAL_BOARD_PX4
@@ -180,6 +181,7 @@ AP_BattMonitor::init()
 #endif
                 _num_instances++;
                 break;
+#endif
             case BattMonitor_TYPE_BEBOP:
 #if CONFIG_HAL_BOARD_SUBTYPE == HAL_BOARD_SUBTYPE_LINUX_BEBOP || CONFIG_HAL_BOARD_SUBTYPE == HAL_BOARD_SUBTYPE_LINUX_DISCO
                 state[instance].instance = instance;
