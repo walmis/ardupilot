@@ -130,6 +130,9 @@ struct AP_Notify::notify_events_type AP_Notify::events;
         ToneAlarm_Linux tonealarm;
         NotifyDevice *AP_Notify::_devices[] = {&boardled, &toshibaled, &tonealarm};
     #endif
+#elif CONFIG_HAL_BOARD == HAL_BOARD_SKYFALCON
+    AP_BoardLED boardled;
+    NotifyDevice *AP_Notify::_devices[] = {&boardled};
 #else
     AP_BoardLED boardled;
     ToshibaLED_I2C toshibaled;

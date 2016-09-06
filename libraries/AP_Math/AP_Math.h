@@ -242,8 +242,9 @@ static inline float degrees(float rad)
     return rad * RAD_TO_DEG;
 }
 
+
 template<class T>
-float sq(const T val)
+inline static float sq(const T val)
 {
     return powf(static_cast<float>(val), 2);
 }
@@ -253,7 +254,7 @@ float sq(const T val)
  * dimension.
  */
 template<class T, class... Params>
-float sq(const T first, const Params... parameters)
+inline static float sq(const T first, const Params... parameters)
 {
     return sq(first) + sq(parameters...);
 }
@@ -263,7 +264,7 @@ float sq(const T first, const Params... parameters)
  * dimension.
  */
 template<class T, class... Params>
-float norm(const T first, const Params... parameters)
+inline static float norm(const T first, const Params... parameters)
 {
     return sqrt(static_cast<float>(sq(first, parameters...)));
 }

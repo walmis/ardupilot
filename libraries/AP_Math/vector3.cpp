@@ -413,7 +413,7 @@ template bool Vector3<float>::is_nan(void) const;
 template bool Vector3<float>::is_inf(void) const;
 template float Vector3<float>::angle(const Vector3<float> &v) const;
 
-template void Vector3<double>::rotate(enum Rotation);
+/*template void Vector3<double>::rotate(enum Rotation);
 template void Vector3<double>::rotate_inverse(enum Rotation);
 template float Vector3<double>::length(void) const;
 template Vector3<double> Vector3<double>::operator %(const Vector3<double> &v) const;
@@ -433,4 +433,4 @@ template bool Vector3<double>::operator ==(const Vector3<double> &v) const;
 template bool Vector3<double>::operator !=(const Vector3<double> &v) const;
 template bool Vector3<double>::is_nan(void) const;
 template bool Vector3<double>::is_inf(void) const;
-template float Vector3<double>::angle(const Vector3<double> &v) const;
+template float Vector3<double>::angle(const Vector3<double> &v) const;*/
