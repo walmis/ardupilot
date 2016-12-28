@@ -138,7 +138,7 @@ float wrap_360(const T angle, float unit_mod = 1.0f)
  * 100 == centi.
  */
 template <class T>
-float wrap_180(const T angle, float unit_mod)
+float wrap_180(const T angle, float unit_mod = 1.0f)
 {
     auto res = wrap_360(angle, unit_mod);
     if (res > 180.f * unit_mod) {
