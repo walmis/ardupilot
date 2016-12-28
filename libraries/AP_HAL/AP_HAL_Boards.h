@@ -135,6 +135,8 @@
     #include <AP_HAL/board/qurt.h>
 #elif CONFIG_HAL_BOARD == HAL_BOARD_VRBRAIN
     #include <AP_HAL/board/vrbrain.h>
+#elif CONFIG_HAL_BOARD == HAL_BOARD_SKYFALCON
+    #include <AP_HAL/board/skyfalcon.h>
 #else
 #error "Unknown CONFIG_HAL_BOARD type"
 #endif
