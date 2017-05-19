@@ -24,10 +24,10 @@ using std::isinf;
 
 #if __ARM_FP == 4
 
-#define acos acosf
-#define asin asinf
-#define sin sinf
-#define cos cosf
+//#define acos acosf
+//#define asin asinf
+//#define sin sinf
+//#define cos cosf
 
 __attribute((always_inline))
 inline float sqrtf(float op1) {
@@ -37,6 +37,8 @@ inline float sqrtf(float op1) {
 
 }
 
+
+namespace fpu {
 __attribute((always_inline))
 inline float sqrt(float op1) {
 	float result;
@@ -44,6 +46,10 @@ inline float sqrt(float op1) {
 	return (result);
 
 }
+}
+
+using fpu::sqrt;
+//using fpu::sqrtf;
 #endif
 // define AP_Param types AP_Vector3f and Ap_Matrix3f
 AP_PARAMDEFV(Vector3f, Vector3f, AP_PARAM_VECTOR3F);

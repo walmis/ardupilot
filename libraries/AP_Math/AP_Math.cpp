@@ -1,8 +1,6 @@
 #include "AP_Math.h"
 #include <float.h>
 
-
-
 //template bool is_equal<int>(const int v_1, const int v_2);
 //template bool is_equal<short>(const short v_1, const short v_2);
 //template bool is_equal<float>(const float v_1, const float v_2);
