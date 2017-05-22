@@ -187,6 +187,10 @@ bool AP_Compass_HMC5843::init()
         set_external(_compass_instance, true);
     }
 
+    // read from sensor at 75Hz
+    _bus->register_periodic_callback(13333,
+                                     FUNCTOR_BIND_MEMBER(&AP_Compass_HMC5843::_timer, bool));
+
     return true;
 
 errout:
@@ -203,32 +207,22 @@ fail_sem:
  *
  * bus semaphore must not be taken
  */
-void AP_Compass_HMC5843::accumulate()
+bool AP_Compass_HMC5843::_timer()
 {
     if (!_initialised) {
         // someone has tried to enable a compass for the first time
         // mid-flight .... we can't do that yet (especially as we won't
         // have the right orientation!)
-        return;
+        return true;
     }
 
    uint32_t tnow = AP_HAL::micros();
-   if (_accum_count != 0 && (tnow - _last_accum_time) < 13333) {
-	  // the compass gets new data at 75Hz
-	  return;
-   }
 
-   if (!_bus->get_semaphore()->take(1)) {
-       // the bus is busy - try again later
-       return;
-   }
 
    bool result = _read_sample();
 
-   _bus->get_semaphore()->give();
-
    if (!result) {
-       return;
+       return true;
    }
 
    // the _mag_N values are in the range -2048 to 2047, so we can
@@ -266,6 +260,8 @@ void AP_Compass_HMC5843::accumulate()
        _accum_count = 7;
    }
    _last_accum_time = tnow;
+
+   return true;
 }
 
 /*
@@ -512,6 +508,11 @@ AP_HAL::Semaphore *AP_HMC5843_BusDriver_HALDevice::get_semaphore()
     return _dev->get_semaphore();
 }
 
+void AP_HMC5843_BusDriver_HALDevice::register_periodic_callback(uint32_t period, AP_HAL::Device::PeriodicCb cb) {
+	_dev->register_periodic_callback(period, cb);
+}
+
+
 /* HMC5843 on an auxiliary bus of IMU driver */
 AP_HMC5843_BusDriver_Auxiliary::AP_HMC5843_BusDriver_Auxiliary(AP_InertialSensor &ins, uint8_t backend_id,
                                                                uint8_t addr)
@@ -587,6 +588,7 @@ bool AP_HMC5843_BusDriver_Auxiliary::start_measurements()
     _started = true;
 
     return true;
-}
+	}
+
 
 #endif

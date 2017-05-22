@@ -28,7 +28,7 @@ public:
 
     bool init() override;
     void read() override;
-    void accumulate() override;
+    bool _timer();
 
 private:
     AP_Compass_HMC5843(Compass &compass, AP_HMC5843_BusDriver *bus,
@@ -80,6 +80,7 @@ public:
 
     virtual bool configure() { return true; }
     virtual bool start_measurements() { return true; }
+    virtual void register_periodic_callback(uint32_t period, AP_HAL::Device::PeriodicCb cb) {};
 };
 
 class AP_HMC5843_BusDriver_HALDevice : public AP_HMC5843_BusDriver
@@ -92,6 +93,7 @@ public:
     bool register_write(uint8_t reg, uint8_t val) override;
 
     AP_HAL::Semaphore *get_semaphore() override;
+    void register_periodic_callback(uint32_t period, AP_HAL::Device::PeriodicCb cb);
 
 private:
     AP_HAL::OwnPtr<AP_HAL::I2CDevice> _dev;
