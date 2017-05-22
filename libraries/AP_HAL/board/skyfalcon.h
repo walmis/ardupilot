@@ -25,13 +25,13 @@
 #define HAL_BARO_MS5611_I2C_ADDR 0x77
 #define HAL_COMPASS_HMC5843_I2C_BUS 0
 #define HAL_COMPASS_HMC5843_I2C_ADDR 0x1E
-#define HAL_INS_MPU60x0_I2C_BUS 1
-#define HAL_INS_MPU60x0_I2C_ADDR 0x69
+#define HAL_INS_MPU60x0_I2C_BUS 0
+#define HAL_INS_MPU60x0_I2C_ADDR 0x68
 //#define HAL_HAVE_IMU_HEATER         1 // for Pixhawk2
 //#define HAL_IMU_TEMP_DEFAULT       -1 // disabled
-#define HAL_GPIO_A_LED_PIN        27
-#define HAL_GPIO_B_LED_PIN        26
-#define HAL_GPIO_C_LED_PIN        25
+#define HAL_GPIO_A_LED_PIN        127
+#define HAL_GPIO_B_LED_PIN        128
+#define HAL_GPIO_C_LED_PIN        129
 #define HAL_GPIO_LED_ON           LOW
 #define HAL_GPIO_LED_OFF          HIGH
 
