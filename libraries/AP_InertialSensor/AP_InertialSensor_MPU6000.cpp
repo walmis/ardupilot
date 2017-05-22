@@ -374,8 +374,11 @@ void AP_InertialSensor_MPU6000::start()
 
     // clear interrupt on any read, and hold the data ready pin high
     // until we clear the interrupt
+#if CONFIG_HAL_BOARD == HAL_BOARD_SKYFALCON
+    _register_write(MPUREG_INT_PIN_CFG, BIT_INT_RD_CLEAR /*| BIT_LATCH_INT_EN*/);
+#else
     _register_write(MPUREG_INT_PIN_CFG, BIT_INT_RD_CLEAR | BIT_LATCH_INT_EN);
-
+#endif
     // now that we have initialised, we set the bus speed to high
     _dev->set_speed(AP_HAL::Device::SPEED_HIGH);
 
