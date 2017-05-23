@@ -28,3 +28,19 @@
 #include "HAL.h"
 
 #include "system.h"
+
+extern void dbgset(uint8_t);
+extern void dbgclr(uint8_t);
+
+class DbgTmr {
+public:
+	DbgTmr(uint8_t i) : id(i) {
+		dbgset(i);
+	}
+
+	~DbgTmr() {
+		dbgclr(id);
+	}
+
+	uint8_t id;
+};
