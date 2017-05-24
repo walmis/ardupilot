@@ -160,6 +160,7 @@ AP_Proximity::Proximity_Status AP_Proximity::get_status() const
 void AP_Proximity::detect_instance(uint8_t instance)
 {
     uint8_t type = _type[instance];
+#if CONFIG_HAL_BOARD != HAL_BOARD_SKYFALCON
     if (type == Proximity_Type_SF40C) {
         if (AP_Proximity_LightWareSF40C::detect(serial_manager)) {
             state[instance].instance = instance;
@@ -167,6 +168,7 @@ void AP_Proximity::detect_instance(uint8_t instance)
             return;
         }
     }
+#endif
 }
 
 // get distance in meters in a particular direction in degrees (0 is forward, clockwise)
