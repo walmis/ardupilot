@@ -40,6 +40,13 @@ void DataFlash_Class::Init(const struct LogStructure *structures, uint8_t num_ty
             backends[_next_backend] = new DataFlash_File(*this,
                                                          message_writer,
                                                          HAL_BOARD_LOG_DIRECTORY);
+#else
+#if CONFIG_HAL_BOARD == HAL_BOARD_SKYFALCON
+            extern DataFlash_Backend* SKYFalcon_getDataflash(DataFlash_Class &front,
+            		class DFMessageWriter_DFLogStart *writer, const char* directory);
+
+            backends[_next_backend] = SKYFalcon_getDataflash(*this, message_writer, HAL_BOARD_LOG_DIRECTORY);
+#endif
 #endif
         }
         if (backends[_next_backend] == NULL) {
