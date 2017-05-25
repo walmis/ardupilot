@@ -25,6 +25,27 @@
 #define GGROUP(v, name, class) { AP_PARAM_GROUP, name, Parameters::k_param_ ## v, &copter.g.v, {group_info : class::var_info} }
 #define GOBJECT(v, name, class) { AP_PARAM_GROUP, name, Parameters::k_param_ ## v, (const void *)&copter.v, {group_info : class::var_info} }
 #define GOBJECTN(v, pname, name, class) { AP_PARAM_GROUP, name, Parameters::k_param_ ## pname, (const void *)&copter.v, {group_info : class::var_info} }
+#define GOBJECTEXT(v, name, class) { AP_PARAM_GROUP, name, Parameters::k_param_ ## v, (const void *)&v, {group_info : class::var_info} }
+
+#if CONFIG_HAL_BOARD == HAL_BOARD_SKYFALCON
+class AP_Radio {
+public:
+	AP_Radio() {
+		AP_Param::setup_object_defaults(this, var_info);
+	}
+
+	static const struct AP_Param::GroupInfo var_info[];
+//protected:
+	AP_Int32 frequency;
+	AP_Int8 txPower;
+
+	AP_Int8 modemCfg;
+	AP_Int8 fhChannels;
+	AP_Int16 maxFragment;
+};
+#endif
+
+extern AP_Radio radio_cfg;
 
 const AP_Param::Info Copter::var_info[] = {
     // @Param: SYSID_SW_MREV
@@ -951,6 +972,8 @@ const AP_Param::Info Copter::var_info[] = {
     // @Values: 0:Do Not Use in RTL and Land,1:Use in RTL and Land
     // @User: Standard
     GSCALAR(terrain_follow, "TERRAIN_FOLLOW", 0),
+
+	GOBJECTEXT(radio_cfg,        "RADIO_", AP_Radio),
 
     // @Group: 
     // @Path: Parameters.cpp

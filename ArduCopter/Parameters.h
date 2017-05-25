@@ -186,7 +186,8 @@ public:
 
         // 97: RSSI
         k_param_rssi = 97,
-                
+		k_param_radio_cfg = 98, /* skyfalcon radio */
+
         //
         // 100: Inertial Nav
         //
