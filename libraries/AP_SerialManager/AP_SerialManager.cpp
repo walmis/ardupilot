@@ -93,7 +93,7 @@ const AP_Param::GroupInfo AP_SerialManager::var_info[] = {
     // @DisplayName: Serial4 protocol selection
     // @Description: Control what protocol Serial4 port should be used for. Note that the Frsky options require external converter hardware. See the wiki for details.
     // @Values: -1:None, 1:MAVLink1, 2:MAVLink2, 3:Frsky D, 4:Frsky SPort, 5:GPS, 7:Alexmos Gimbal Serial, 8:SToRM32 Gimbal Serial, 9:Lidar, 10:FrSky SPort Passthrough (OpenTX), 11:Lidar360    // @User: Standard
-    AP_GROUPINFO("4_PROTOCOL",  7, AP_SerialManager, state[4].protocol, SerialProtocol_GPS),
+    AP_GROUPINFO("4_PROTOCOL",  7, AP_SerialManager, state[4].protocol, SerialProtocol_MAVLink),
 
     // @Param: 4_BAUD
     // @DisplayName: Serial 4 Baud Rate
@@ -101,7 +101,7 @@ const AP_Param::GroupInfo AP_SerialManager::var_info[] = {
     // @Values: 1:1200,2:2400,4:4800,9:9600,19:19200,38:38400,57:57600,111:111100,115:115200,500:500000,921:921600,1500:1500000
     // @User: Standard
     AP_GROUPINFO("4_BAUD", 8, AP_SerialManager, state[4].baud, AP_SERIALMANAGER_GPS_BAUD/1000),
-
+#if CONFIG_HAL_BOARD != HAL_BOARD_SKYFALCON
     // @Param: 5_PROTOCOL
     // @DisplayName: Serial5 protocol selection
     // @Description: Control what protocol Serial5 port should be used for. Note that the Frsky options require external converter hardware. See the wiki for details.
@@ -114,7 +114,7 @@ const AP_Param::GroupInfo AP_SerialManager::var_info[] = {
     // @Values: 1:1200,2:2400,4:4800,9:9600,19:19200,38:38400,57:57600,111:111100,115:115200,500:500000,921:921600,1500:1500000
     // @User: Standard
     AP_GROUPINFO("5_BAUD", 10, AP_SerialManager, state[5].baud, SERIAL5_BAUD),
-
+#endif
     // index 11 used by 0_PROTOCOL
     
     AP_GROUPEND
