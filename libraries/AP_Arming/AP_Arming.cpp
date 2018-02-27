@@ -23,6 +23,7 @@
 #define AP_ARMING_BOARD_VOLTAGE_MIN     4.3f
 #define AP_ARMING_BOARD_VOLTAGE_MAX     5.8f
 #define AP_ARMING_ACCEL_ERROR_THRESHOLD 0.75f
+#define AP_ARMING_AHRS_GPS_ERROR_MAX    10      // accept up to 10m difference between AHRS and GPS
 
 extern const AP_HAL::HAL& hal;
 
@@ -53,23 +54,21 @@ const AP_Param::GroupInfo AP_Arming::var_info[] = {
     // @User: Advanced
     AP_GROUPINFO("ACCTHRESH",    3,     AP_Arming,  accel_error_threshold,  AP_ARMING_ACCEL_ERROR_THRESHOLD),
 
-#if !APM_BUILD_TYPE(APM_BUILD_ArduCopter)
-    // @Param: MIN_VOLT
-    // @DisplayName: Minimum arming voltage on the first battery
-    // @Description: The minimum voltage on the first battery to arm, 0 disables the check.  This parameter is relevant for ArduPlane only.
+    // @Param: VOLT_MIN
+    // @DisplayName: Arming voltage minimum on the first battery
+    // @Description: The minimum voltage on the first battery to arm, 0 disables the check
     // @Units: Volts
     // @Increment: 0.1 
     // @User: Standard
-    AP_GROUPINFO("MIN_VOLT",      4,     AP_Arming,  _min_voltage[0],  0),
+    AP_GROUPINFO("VOLT_MIN",      4,     AP_Arming,  _min_voltage[0],  0),
 
-    // @Param: MIN_VOLT2
-    // @DisplayName: Minimum arming voltage on the second battery
-    // @Description: The minimum voltage on the first battery to arm, 0 disables the check. This parameter is relevant for ArduPlane only.
+    // @Param: VOLT2_MIN
+    // @DisplayName: Arming voltage minimum on the second battery
+    // @Description: The minimum voltage on the first battery to arm, 0 disables the check
     // @Units: Volts
     // @Increment: 0.1 
     // @User: Standard
-    AP_GROUPINFO("MIN_VOLT2",     5,     AP_Arming,  _min_voltage[1],  0),
-#endif
+    AP_GROUPINFO("VOLT2_MIN",     5,     AP_Arming,  _min_voltage[1],  0),
 
     AP_GROUPEND
 };
@@ -383,6 +382,19 @@ bool AP_Arming::gps_checks(bool report)
             }
             return false;
         }
+
+        // check AHRS and GPS are within 10m of each other
+        Location gps_loc = ahrs.get_gps().location();
+        Location ahrs_loc;
+        if (ahrs.get_position(ahrs_loc)) {
+            float distance = location_3d_diff_NED(gps_loc, ahrs_loc).length();
+            if (distance > AP_ARMING_AHRS_GPS_ERROR_MAX) {
+                if (report) {
+                    GCS_MAVLINK::send_statustext_all(MAV_SEVERITY_CRITICAL, "PreArm: GPS and AHRS differ by %4.1fm", (double)distance);
+                }
+                return false;
+            }
+        }
     }
 
     return true;
@@ -400,7 +412,7 @@ bool AP_Arming::battery_checks(bool report)
             return false;
         }
 
-        for (int i = 0; i < _battery.num_instances(); i++) {
+        for (uint8_t i = 0; i < _battery.num_instances(); i++) {
             if ((_min_voltage[i] > 0.0f) && (_battery.voltage(i) < _min_voltage[i])) {
                 if (report) {
                     GCS_MAVLINK::send_statustext_all(MAV_SEVERITY_CRITICAL, "PreArm: Battery %d voltage %.1f below minimum %.1f",

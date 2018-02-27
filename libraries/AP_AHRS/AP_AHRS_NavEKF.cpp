@@ -195,6 +195,7 @@ void AP_AHRS_NavEKF::update_EKF2(void)
             nav_filter_status filt_state;
             EKF2.getFilterStatus(-1,filt_state);
             AP_Notify::flags.gps_fusion = filt_state.flags.using_gps; // Drives AP_Notify flag for usable GPS.
+            AP_Notify::flags.gps_glitching = filt_state.flags.gps_glitching;
         }
     }
 }
@@ -266,6 +267,7 @@ void AP_AHRS_NavEKF::update_EKF3(void)
             nav_filter_status filt_state;
             EKF3.getFilterStatus(-1,filt_state);
             AP_Notify::flags.gps_fusion = filt_state.flags.using_gps; // Drives AP_Notify flag for usable GPS.
+            AP_Notify::flags.gps_glitching = filt_state.flags.gps_glitching;
         }
     }
 }
@@ -788,8 +790,8 @@ bool AP_AHRS_NavEKF::get_relative_position_NED_home(Vector3f &vec) const
 
     Vector3f offset = location_3d_diff_NED(originLLH, _home);
 
-    vec.x = originNED.x + offset.x;
-    vec.y = originNED.y + offset.y;
+    vec.x = originNED.x - offset.x;
+    vec.y = originNED.y - offset.y;
     vec.z = originNED.z - offset.z;
     return true;
 }
@@ -837,8 +839,8 @@ bool AP_AHRS_NavEKF::get_relative_position_NE_home(Vector2f &posNE) const
 
     Vector2f offset = location_diff(originLLH, _home);
 
-    posNE.x = originNE.x + offset.x;
-    posNE.y = originNE.y + offset.y;
+    posNE.x = originNE.x - offset.x;
+    posNE.y = originNE.y - offset.y;
     return true;
 }
 

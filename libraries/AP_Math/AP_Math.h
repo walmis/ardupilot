@@ -75,6 +75,28 @@ inline bool is_zero(const T fVal1) {
     return (fabsf(static_cast<float>(fVal1)) < FLT_EPSILON);
 }
 
+/* 
+ * @brief: Check whether a float is greater than zero
+ */
+template <class T>
+inline bool is_positive(const T fVal1) {
+    static_assert(std::is_floating_point<T>::value || std::is_base_of<T,AP_Float>::value,
+                  "Template parameter not of type float");
+    return (static_cast<float>(fVal1) > FLT_EPSILON);
+}
+
+
+/* 
+ * @brief: Check whether a float is less than zero
+ */
+template <class T>
+inline bool is_negative(const T fVal1) {
+    static_assert(std::is_floating_point<T>::value || std::is_base_of<T,AP_Float>::value,
+                  "Template parameter not of type float");
+    return (static_cast<float>(fVal1) < (-1.0 * FLT_EPSILON));
+}
+
+
 /*
  * A variant of asin() that checks the input ranges and ensures a valid angle
  * as output. If nan is given as input then zero is returned.
@@ -336,3 +358,7 @@ inline float linear_interpolate(float low_output, float high_output,
 
 /* simple 16 bit random number generator */
 uint16_t get_random16(void);
+
+// generate a random Vector3f of size 1
+Vector3f rand_vec3f(void);
+

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016  Intel Corporation. All rights reserved.
+ * Copyright (C) 2016  Emlid Ltd. All rights reserved.
  *
  * This file is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -24,49 +24,37 @@
 #include "AP_Compass.h"
 #include "AP_Compass_Backend.h"
 
-class AP_Compass_BMM150 : public AP_Compass_Backend
+#ifndef HAL_COMPASS_QMC5883L_I2C_ADDR
+#define HAL_COMPASS_QMC5883L_I2C_ADDR 0x0D
+#endif
+
+class AP_Compass_QMC5883L : public AP_Compass_Backend
 {
 public:
     static AP_Compass_Backend *probe(Compass &compass,
-                                     AP_HAL::OwnPtr<AP_HAL::I2CDevice> dev);
+                                     AP_HAL::OwnPtr<AP_HAL::I2CDevice> dev,
+									 bool force_external,
+                                     enum Rotation rotation = ROTATION_NONE);
 
     void read() override;
 
-    static constexpr const char *name = "BMM150";
+    static constexpr const char *name = "QMC5883L";
 
 private:
-    AP_Compass_BMM150(Compass &compass, AP_HAL::OwnPtr<AP_HAL::Device> dev);
+    AP_Compass_QMC5883L(Compass &compass,
+                       AP_HAL::OwnPtr<AP_HAL::Device> dev,
+					   bool force_external,
+                       enum Rotation rotation);
 
-    /**
-     * Device periodic callback to read data from the sensor.
-     */
+    void timer();
     bool init();
-    void _update();
-    bool _load_trim_values();
-    int16_t _compensate_xy(int16_t xy, uint32_t rhall, int32_t txy1, int32_t txy2);
-    int16_t _compensate_z(int16_t z, uint32_t rhall);
 
     AP_HAL::OwnPtr<AP_HAL::Device> _dev;
 
-    Vector3f _mag_accum;
-    uint32_t _accum_count;
+    Vector3f _accum = Vector3f();
+    uint32_t _accum_count = 0;
 
-    uint8_t _compass_instance;
-
-    struct {
-        int8_t x1;
-        int8_t y1;
-        int8_t x2;
-        int8_t y2;
-        uint16_t z1;
-        int16_t z2;
-        int16_t z3;
-        int16_t z4;
-        uint8_t xy1;
-        int8_t xy2;
-        uint16_t xyz1;
-    } _dig;
-
-    uint32_t _last_read_ms;
-    AP_HAL::Util::perf_counter_t _perf_err;
+    enum Rotation _rotation;
+    uint8_t _instance;
+    bool _force_external:1;
 };

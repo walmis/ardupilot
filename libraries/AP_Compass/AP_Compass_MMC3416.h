@@ -22,16 +22,11 @@
 #include "AP_Compass.h"
 #include "AP_Compass_Backend.h"
 
-#ifndef HAL_COMPASS_AK09916_I2C_ADDR
-# define HAL_COMPASS_AK09916_I2C_ADDR 0x0C
+#ifndef HAL_COMPASS_MMC3416_I2C_ADDR
+# define HAL_COMPASS_MMC3416_I2C_ADDR 0x30
 #endif
 
-// the AK09916 can be connected via an ICM20948
-#ifndef HAL_COMPASS_ICM20948_I2C_ADDR
-# define HAL_COMPASS_ICM20948_I2C_ADDR 0x69
-#endif
-
-class AP_Compass_AK09916 : public AP_Compass_Backend
+class AP_Compass_MMC3416 : public AP_Compass_Backend
 {
 public:
     static AP_Compass_Backend *probe(Compass &compass,
@@ -39,42 +34,44 @@ public:
                                      bool force_external = false,
                                      enum Rotation rotation = ROTATION_NONE);
 
-    // separate probe function for when behind a ICM20948 IMU
-    static AP_Compass_Backend *probe_ICM20948(Compass &compass,
-                                              AP_HAL::OwnPtr<AP_HAL::I2CDevice> dev,
-                                              AP_HAL::OwnPtr<AP_HAL::I2CDevice> dev_icm,
-                                              bool force_external = false,
-                                              enum Rotation rotation = ROTATION_NONE);
-    
     void read() override;
 
-    static constexpr const char *name = "AK09916";
+    static constexpr const char *name = "MMC3416";
 
 private:
-    enum bus_type {
-        AK09916_I2C=0,
-        AK09916_ICM20948_I2C,
-    } bus_type;
-    
-    AP_Compass_AK09916(Compass &compass,
-                       AP_HAL::OwnPtr<AP_HAL::Device> dev,
-                       AP_HAL::OwnPtr<AP_HAL::Device> dev_icm,
+    AP_Compass_MMC3416(Compass &compass, AP_HAL::OwnPtr<AP_HAL::Device> dev,
                        bool force_external,
-                       enum Rotation rotation,
-                       enum bus_type bus_type);
+                       enum Rotation rotation);
 
     AP_HAL::OwnPtr<AP_HAL::Device> dev;
-    AP_HAL::OwnPtr<AP_HAL::Device> dev_icm;
+
+    enum {
+        STATE_REFILL1,
+        STATE_REFILL1_WAIT,
+        STATE_MEASURE_WAIT1,
+        STATE_REFILL2_WAIT,
+        STATE_MEASURE_WAIT2,
+        STATE_MEASURE_WAIT3,
+    } state;
     
     /**
      * Device periodic callback to read data from the sensor.
      */
     bool init();
     void timer();
+    void accumulate_field(Vector3f &field);
 
     uint8_t compass_instance;
     Vector3f accum;
     uint16_t accum_count;
     bool force_external;
+    Vector3f offset;
+    uint16_t measure_count;
+    bool have_initial_offset;
+    uint32_t refill_start_ms;
+    uint32_t last_sample_ms;
+    
+    uint16_t data0[3];
+    
     enum Rotation rotation;
 };

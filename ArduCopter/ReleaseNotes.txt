@@ -1,5 +1,65 @@
 ArduPilot Copter Release Notes:
 ------------------------------------------------------------------
+Copter 3.5.4 23-Nov-2017 / 3.5.4-rc2 17-Nov-2017
+Changes from 3.5.3
+1) Compass improvements / bug fixes:
+    a) probe for LIS3MDL on I2C address 0x1e
+    b) bug fix pixracer compass detection
+------------------------------------------------------------------
+Copter 3.5.4-rc1 08-Nov-2017
+Changes from 3.5.3
+1) Compass improvements:
+    a) support added for QMC5883L, LIS3MDL, IST8310
+    b) COMPASS_TYPEMASK parameter allows enabling/disabling individual compass drivers
+2) LightWare and MaxBotix range finders supported on both I2C buses
+3) Serial port 5 can be used for telemetry or sensors (previously was only for NuttX console)
+4) px4pro flight controller supported
+5) TradHeli fixes:
+    a) motor runup check applies to all flight modes (previously only loiter, poshold, althold)
+    b) swashplate behaviour changes when on ground in acro, stabilize and althold
+    c) servo test function fixed
+    d) direct drive fixed pitch tail fix
+    e) Z-axis Accel P gain default lowered to 0.3
+6) EKF origin set using SET_GPS_GLOBAL_ORIGIN mavlink message instead of SET_HOME_POSITION
+7) Intel Aero supports 921600 baud rate between main flight controller and companion computer
+8) Bug fix to I2C race condition on Pixhawk that could occasionally cause I2C device to not be detected
+------------------------------------------------------------------
+Copter 3.5.3 21-Sep-2017 / Copter 3.5.3-rc1 12-Sep-2017
+Changes from 3.5.2
+1) Guided mode support yaw and yaw-rate fields from set-position-target message
+2) Optical Flow startup retries 10 times 
+3) Bug fixes:
+    a) Septentrio RTK GPS driver robustness improvements for long messages
+    b) dataflash not-logging checks if not initialised
+    c) fix reporting of relative-position-NE-to-home (most users will not notice this difference) 
+------------------------------------------------------------------
+Copter 3.5.2 14-Aug-2017 / Copter 3.5.2-rc1 05-Aug-2017
+Changes from 3.5.1
+1) GPS glitch arming check and notification (flashing blue-yellow LED, message on HUD)
+2) Arming check for minimum voltage (see ARMING_VOLT_MIN parameter)
+3) Landing Gear startup behaviour now configurable (see LGR_STARTUP parameter)
+4) Solo LED fix when using "boat" mode
+5) Intel Aero RTF gets one more I2C bus
+6) Bug fixes:
+    a) resolve barometer floating point exception when ground pressure set to be negative
+    b) resolve freeze if SERVOx_FUNCTION is set above 80   
+------------------------------------------------------------------
+Copter 3.5.1 31-July-2017 / 3.5.1-rc1 24-July-2017
+Changes from 3.5.0
+1) fix to RC input corruption when using Spektrum DSMx with Pixracer 
+------------------------------------------------------------------
+Copter 3.5.0 17-July-2017 / 3.5.0-rc11 12-July-2017
+Changes from 3.5-rc10
+1) GPS fixes:
+    a) Re-enable auto detection of NMEA GPS (revert change from -rc9)
+    b) Fix SBF race condition on start (this should resolve SBF GPS detection issues for some users)
+2) SF40c driver fix to ignore zero distances
+------------------------------------------------------------------
+Copter 3.5.0-rc10 08-July-2017
+Changes from 3.5-rc9
+1) Intel Aero build and default parameter updates
+2) EKF final yaw reset lowered from 5m to 2.5m to speed up bad compass detection after takeoff
+------------------------------------------------------------------
 Copter 3.5.0-rc9 03-July-2017
 Changes from 3.5-rc8
 1) AutoTune improvement when using position hold (twitches in body-frame instead of earth-frame)
