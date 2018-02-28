@@ -513,6 +513,7 @@ void AP_GPS::detect_instance(uint8_t instance)
             AP_GPS_UBLOX::_detect(dstate->ublox_detect_state, data)) {
             new_gps = new AP_GPS_UBLOX(*this, state[instance], _port[instance]);
         }
+
 #if !HAL_MINIMIZE_FEATURES
         // we drop the MTK drivers when building a small build as they are so rarely used
         // and are surprisingly large
@@ -524,6 +525,7 @@ void AP_GPS::detect_instance(uint8_t instance)
             new_gps = new AP_GPS_MTK(*this, state[instance], _port[instance]);
         }
 #endif
+#if CONFIG_HAL_BOARD != HAL_BOARD_SKYFALCON
         else if ((_type[instance] == GPS_TYPE_AUTO || _type[instance] == GPS_TYPE_SBP) &&
                  AP_GPS_SBP2::_detect(dstate->sbp2_detect_state, data)) {
             new_gps = new AP_GPS_SBP2(*this, state[instance], _port[instance]);
@@ -532,6 +534,7 @@ void AP_GPS::detect_instance(uint8_t instance)
                  AP_GPS_SBP::_detect(dstate->sbp_detect_state, data)) {
             new_gps = new AP_GPS_SBP(*this, state[instance], _port[instance]);
         }
+
 #if !HAL_MINIMIZE_FEATURES
         else if ((_type[instance] == GPS_TYPE_AUTO || _type[instance] == GPS_TYPE_SIRF) &&
                  AP_GPS_SIRF::_detect(dstate->sirf_detect_state, data)) {
@@ -541,7 +544,9 @@ void AP_GPS::detect_instance(uint8_t instance)
         else if ((_type[instance] == GPS_TYPE_AUTO || _type[instance] == GPS_TYPE_ERB) &&
                  AP_GPS_ERB::_detect(dstate->erb_detect_state, data)) {
             new_gps = new AP_GPS_ERB(*this, state[instance], _port[instance]);
-        } else if (now - dstate->detect_started_ms > (ARRAY_SIZE(_baudrates) * GPS_BAUD_TIME_MS)) {
+        }
+#endif
+        else if (now - dstate->detect_started_ms > (ARRAY_SIZE(_baudrates) * GPS_BAUD_TIME_MS)) {
             // prevent false detection of NMEA mode in
             // a MTK or UBLOX which has booted in NMEA mode
             if ((_type[instance] == GPS_TYPE_AUTO || _type[instance] == GPS_TYPE_NMEA) &&
