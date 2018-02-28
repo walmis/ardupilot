@@ -207,8 +207,14 @@ private:
 
     // Inertial Navigation EKF
     NavEKF2 EKF2{&ahrs, barometer, rangefinder};
-    NavEKF3 EKF3{&ahrs, barometer, rangefinder};
-    AP_AHRS_NavEKF ahrs{ins, barometer, gps, rangefinder, EKF2, EKF3, AP_AHRS_NavEKF::FLAG_ALWAYS_USE_EKF};
+#if EKF3_ENABLE
+	NavEKF3 EKF3{&ahrs, barometer, rangefinder};
+#endif
+    AP_AHRS_NavEKF ahrs{ins, barometer, gps, rangefinder, EKF2,
+#if EKF3_ENABLE
+		EKF3,
+#endif
+		AP_AHRS_NavEKF::FLAG_ALWAYS_USE_EKF};
 
 #if CONFIG_HAL_BOARD == HAL_BOARD_SITL
     SITL::SITL sitl;

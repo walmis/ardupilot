@@ -46,7 +46,11 @@ public:
 
     // Constructor
     AP_AHRS_NavEKF(AP_InertialSensor &ins, AP_Baro &baro, AP_GPS &gps, RangeFinder &rng,
-                   NavEKF2 &_EKF2, NavEKF3 &_EKF3, Flags flags = FLAG_NONE);
+                   NavEKF2 &_EKF2,
+#if EKF3_ENABLE
+				   NavEKF3 &_EKF3,
+#endif
+				   Flags flags = FLAG_NONE);
 
     // return the smoothed gyro vector corrected for drift
     const Vector3f &get_gyro(void) const override;
@@ -93,12 +97,14 @@ public:
         return EKF2;
     }
 
-    NavEKF3 &get_NavEKF3(void) {
-        return EKF3;
-    }
-    const NavEKF3 &get_NavEKF3_const(void) const {
-        return EKF3;
-    }
+#if EKF3_ENABLE
+	NavEKF3 &get_NavEKF3(void) {
+		return EKF3;
+	}
+	const NavEKF3 &get_NavEKF3_const(void) const {
+		return EKF3;
+	}
+#endif
     
     // return secondary attitude solution if available, as eulers in radians
     bool get_secondary_attitude(Vector3f &eulers) override;
@@ -251,7 +257,9 @@ public:
 
 private:
     enum EKF_TYPE {EKF_TYPE_NONE=0,
-                   EKF_TYPE3=3,
+#if EKF3_ENABLE
+					EKF_TYPE3=3,
+#endif
                    EKF_TYPE2=2
 #if CONFIG_HAL_BOARD == HAL_BOARD_SITL
                    ,EKF_TYPE_SITL=10
@@ -264,7 +272,9 @@ private:
     }
 
     NavEKF2 &EKF2;
-    NavEKF3 &EKF3;
+#if EKF3_ENABLE
+	NavEKF3 &EKF3;
+#endif
     bool _ekf2_started;
     bool _ekf3_started;
     bool _force_ekf;
@@ -281,7 +291,9 @@ private:
     uint8_t ekf_type(void) const;
     void update_DCM(bool skip_ins_update);
     void update_EKF2(void);
-    void update_EKF3(void);
+#if EKF3_ENABLE
+	void update_EKF3(void);
+#endif
 
     // get the index of the current primary IMU
     uint8_t get_primary_IMU_index(void) const;

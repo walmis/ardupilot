@@ -210,8 +210,14 @@ private:
 // Inertial Navigation EKF
 #if AP_AHRS_NAVEKF_AVAILABLE
     NavEKF2 EKF2{&ahrs, barometer, rangefinder};
-    NavEKF3 EKF3{&ahrs, barometer, rangefinder};
-    AP_AHRS_NavEKF ahrs {ins, barometer, gps, rangefinder, EKF2, EKF3};
+#if EKF3_ENABLE
+	NavEKF3 EKF3{&ahrs, barometer, rangefinder};
+#endif
+    AP_AHRS_NavEKF ahrs {ins, barometer, gps, rangefinder, EKF2,
+#if EKF3_ENABLE
+		EKF3
+#endif
+    };
 #else
     AP_AHRS_DCM ahrs {ins, barometer, gps};
 #endif

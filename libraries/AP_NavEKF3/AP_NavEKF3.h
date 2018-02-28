@@ -18,6 +18,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #pragma once
+#define EKF3_ENABLE 0
 
 #include <AP_Math/AP_Math.h>
 #include <AP_Param/AP_Param.h>
