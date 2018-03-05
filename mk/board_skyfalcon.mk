@@ -29,8 +29,8 @@ WARNFLAGSCXX    = \
 
 DEPFLAGS        =   -MD -MP -MT $@
 
-CXXOPTS         =   -ffunction-sections -fdata-sections -fno-exceptions -fsigned-char -fno-rtti -flto
-COPTS           =   -ffunction-sections -fdata-sections -fsigned-char -flto
+CXXOPTS         =   -ffunction-sections -fdata-sections -fno-exceptions -fsigned-char -fno-rtti 
+COPTS           =   -ffunction-sections -fdata-sections -fsigned-char 
 
 ASOPTS          =   -x assembler-with-cpp 
 

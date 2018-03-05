@@ -174,7 +174,8 @@ void AP_Notify::init(bool enable_external_leds)
         _devices[1] = new ToshibaLED_I2C();
         _devices[2] = new ToneAlarm_Linux();
     #endif
-
+#elif CONFIG_HAL_BOARD == HAL_BOARD_SKYFALCON
+	_devices[0] = new AP_BoardLED();
 #else
     _devices[0] = new AP_BoardLED();
     _devices[1] = new ToshibaLED_I2C();
